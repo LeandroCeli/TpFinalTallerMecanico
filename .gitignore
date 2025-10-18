@@ -1,0 +1,27 @@
+# Build / obj
+bin/
+obj/
+
+# User-specific / IDE
+.vs/
+.vscode/
+*.user
+*.suo
+
+# Logs / temp
+*.log
+*.tmp
+
+# ASP.NET
+wwwroot/lib/
+
+# EF Core migrations artifacts (si generás archivos temporales)
+*.jfm
+
+# SQLite DB (subimos solo schema.sql, no el archivo físico)
+*.db
+*.db-shm
+*.db-wal
+
+# Secretos locales
+appsettings.*.local.json

@@ -1,0 +1,28 @@
+@model TallerMecanico.Models.Trabajo
+
+<div class="container mt-4">
+    <h2><i class="bi bi-info-circle"></i> Detalles del Trabajo</h2>
+
+    <dl class="row mt-3">
+        <dt class="col-sm-3">Vehículo</dt>
+        <dd class="col-sm-9">@($"{Model.Vehiculo?.Patente} - {Model.Vehiculo?.Marca} {Model.Vehiculo?.Modelo}")</dd>
+
+        <dt class="col-sm-3">Descripción</dt>
+        <dd class="col-sm-9">@Model.Descripcion</dd>
+
+        <dt class="col-sm-3">Fecha de Inicio</dt>
+        <dd class="col-sm-9">@Model.FechaInicio.ToString("dd/MM/yyyy")</dd>
+
+        <dt class="col-sm-3">Fecha de Fin</dt>
+        <dd class="col-sm-9">@((Model.FechaFin.HasValue) ? Model.FechaFin.Value.ToString("dd/MM/yyyy") : "En proceso")</dd>
+
+        <dt class="col-sm-3">Costo Total</dt>
+        <dd class="col-sm-9">$@Model.CostoTotal.ToString("N2")</dd>
+
+        <dt class="col-sm-3">Estado</dt>
+        <dd class="col-sm-9">@Model.Estado</dd>
+    </dl>
+
+    <a asp-action="Editar" asp-route-id="@Model.Id" class="btn btn-warning"><i class="bi bi-pencil"></i> Editar</a>
+    <a asp-action="Index" class="btn btn-secondary"><i class="bi bi-arrow-left"></i> Volver</a>
+</div>

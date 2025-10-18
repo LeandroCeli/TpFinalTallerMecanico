@@ -1,0 +1,51 @@
+@model TallerMecanico.Models.Vehiculo
+
+@{
+    ViewData["Title"] = "Nuevo Vehículo";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4">Registrar Vehículo</h2>
+
+    <form asp-action="Crear" method="post" class="needs-validation">
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label class="form-label">Cliente</label>
+                <select asp-for="ClienteId" class="form-select" asp-items="@(new SelectList(ViewBag.Clientes, "Id", "Nombre"))">
+                    <option value="">Seleccione un cliente...</option>
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Patente</label>
+                <input asp-for="Patente" class="form-control" placeholder="Ej: ABC123" />
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <label class="form-label">Marca</label>
+                <input asp-for="Marca" class="form-control" />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Modelo</label>
+                <input asp-for="Modelo" class="form-control" />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Año</label>
+                <input asp-for="Año" type="number" class="form-control" />
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Color</label>
+            <input asp-for="Color" class="form-control" />
+        </div>
+
+        <button type="submit" class="btn btn-success">
+            <i class="bi bi-save"></i> Guardar
+        </button>
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Volver
+        </a>
+    </form>
+</div>

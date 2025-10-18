@@ -113,5 +113,10 @@ namespace TallerMecanico.Repositories
             command.Parameters.AddWithValue("@id", id);
             command.ExecuteNonQuery();
         }
+
+        public List<Vehiculo> GetAll()
+        {
+            return ObtenerTodos();
+        }
     }
 }

@@ -1,0 +1,28 @@
+@model TallerMecanico.Models.Rol
+
+@{
+    ViewData["Title"] = "Nuevo Rol";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4">Crear Rol</h2>
+
+    <form asp-action="Crear" method="post">
+        <div class="mb-3">
+            <label class="form-label">Nombre</label>
+            <input asp-for="Nombre" class="form-control" placeholder="Ej: Administrador, Mecánico, Recepcionista" />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Descripción</label>
+            <textarea asp-for="Descripcion" class="form-control" rows="3" placeholder="Descripción del rol"></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-success me-2">
+            <i class="bi bi-save"></i> Guardar
+        </button>
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Volver
+        </a>
+    </form>
+</div>

@@ -73,5 +73,21 @@ namespace TallerMecanico.Controllers
             repoVehiculo.Eliminar(id);
             return RedirectToAction("Index");
         }
+
+        public IActionResult DEtalles(int id)
+        {
+            var vehiculo = repoVehiculo.ObtenerPorId(id);
+            if (vehiculo == null) return NotFound();
+
+            // Trae también el cliente si querés mostrarlo
+            var cliente = repoCliente.ObtenerPorId(vehiculo.ClienteId);
+            vehiculo.Cliente = cliente;
+
+            return View(vehiculo);
+        }
+
+
+
+
     }
 }

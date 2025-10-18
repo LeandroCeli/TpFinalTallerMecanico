@@ -1,0 +1,30 @@
+@model TallerMecanico.Models.Rol
+
+@{
+    ViewData["Title"] = "Editar Rol";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4">Editar Rol</h2>
+
+    <form asp-action="Editar" method="post">
+        <input type="hidden" asp-for="Id" />
+
+        <div class="mb-3">
+            <label class="form-label">Nombre</label>
+            <input asp-for="Nombre" class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Descripción</label>
+            <textarea asp-for="Descripcion" class="form-control" rows="3"></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-warning me-2">
+            <i class="bi bi-save"></i> Guardar cambios
+        </button>
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Volver
+        </a>
+    </form>
+</div>

@@ -15,6 +15,11 @@ namespace TallerMecanico.Controllers
             repo = new TrabajoRepository(connectionString);
             repoVehiculo = new VehiculoRepository(connectionString);
         }
+        public IActionResult TrabajoVue()
+        {
+            return View("TrabajoVue");
+        }
+
 
         public IActionResult Index()
         {

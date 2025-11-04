@@ -18,7 +18,7 @@ namespace TallerMecanico.Repositories
             var lista = new List<Cliente>();
             using var connection = new MySqlConnection(connectionString);
             connection.Open();
-            var query = "SELECT * FROM Clientes";
+            var query = "SELECT * FROM Cliente";
             using var command = new MySqlCommand(query, connection);
             using var reader = command.ExecuteReader();
             while (reader.Read())
@@ -42,7 +42,7 @@ namespace TallerMecanico.Repositories
             Cliente? cliente = null;
             using var connection = new MySqlConnection(connectionString);
             connection.Open();
-            var query = "SELECT * FROM Clientes WHERE Id = @id";
+            var query = "SELECT * FROM Cliente WHERE Id = @id";
             using var command = new MySqlCommand(query, connection);
             command.Parameters.AddWithValue("@id", id);
             using var reader = command.ExecuteReader();
@@ -62,12 +62,14 @@ namespace TallerMecanico.Repositories
             return cliente;
         }
 
-        public void Crear(Cliente cliente)
+        public int Crear(Cliente cliente)
         {
             using var connection = new MySqlConnection(connectionString);
             connection.Open();
-            var query = @"INSERT INTO Clientes (Dni, Nombre, Apellido, Telefono, Email, Direccion)
-                          VALUES (@dni, @nombre, @apellido, @telefono, @email, @direccion)";
+
+            var query = @"INSERT INTO Cliente (Dni, Nombre, Apellido, Telefono, Email, Direccion)
+                  VALUES (@dni, @nombre, @apellido, @telefono, @email, @direccion)";
+
             using var command = new MySqlCommand(query, connection);
             command.Parameters.AddWithValue("@dni", cliente.Dni);
             command.Parameters.AddWithValue("@nombre", cliente.Nombre);
@@ -75,14 +77,21 @@ namespace TallerMecanico.Repositories
             command.Parameters.AddWithValue("@telefono", cliente.Telefono);
             command.Parameters.AddWithValue("@email", cliente.Email);
             command.Parameters.AddWithValue("@direccion", cliente.Direccion);
+
             command.ExecuteNonQuery();
+
+            // 👇 Esta línea obtiene el último ID autogenerado
+            int nuevoId = (int)command.LastInsertedId;
+
+            return nuevoId;
         }
+
 
         public void Editar(Cliente cliente)
         {
             using var connection = new MySqlConnection(connectionString);
             connection.Open();
-            var query = @"UPDATE Clientes SET Dni=@dni, Nombre=@nombre, Apellido=@apellido, 
+            var query = @"UPDATE Cliente SET Dni=@dni, Nombre=@nombre, Apellido=@apellido, 
                           Telefono=@telefono, Email=@email, Direccion=@direccion 
                           WHERE Id=@id";
             using var command = new MySqlCommand(query, connection);
@@ -100,7 +109,7 @@ namespace TallerMecanico.Repositories
         {
             using var connection = new MySqlConnection(connectionString);
             connection.Open();
-            var query = "DELETE FROM Clientes WHERE Id = @id";
+            var query = "DELETE FROM Cliente WHERE Id = @id";
             using var command = new MySqlCommand(query, connection);
             command.Parameters.AddWithValue("@id", id);
             command.ExecuteNonQuery();

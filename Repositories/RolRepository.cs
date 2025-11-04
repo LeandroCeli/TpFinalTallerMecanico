@@ -17,7 +17,7 @@ namespace TallerMecanico.Repositories
             var lista = new List<Rol>();
             using var connection = new MySqlConnection(connectionString);
             connection.Open();
-            var query = "SELECT Id, Nombre, Descripcion FROM Roles";
+            var query = "SELECT Id, Nombre, Descripcion FROM Rol";
             using var command = new MySqlCommand(query, connection);
             using var reader = command.ExecuteReader();
 

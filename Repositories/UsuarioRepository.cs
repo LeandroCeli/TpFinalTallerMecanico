@@ -18,8 +18,8 @@ namespace TallerMecanico.Repositories
             using var connection = new MySqlConnection(connectionString);
             connection.Open();
             var query = @"SELECT u.*, r.Nombre AS RolNombre
-                          FROM Usuarios u
-                          INNER JOIN Roles r ON u.RolId = r.Id";
+                          FROM Usuario u
+                          INNER JOIN Rol r ON u.RolId = r.Id";
             using var command = new MySqlCommand(query, connection);
             using var reader = command.ExecuteReader();
 
@@ -50,7 +50,7 @@ namespace TallerMecanico.Repositories
             Usuario? usuario = null;
             using var connection = new MySqlConnection(connectionString);
             connection.Open();
-            var query = "SELECT * FROM Usuarios WHERE Id=@id";
+            var query = "SELECT * FROM Usuario WHERE Id=@id";
             using var command = new MySqlCommand(query, connection);
             command.Parameters.AddWithValue("@id", id);
             using var reader = command.ExecuteReader();
@@ -76,7 +76,7 @@ namespace TallerMecanico.Repositories
         {
             using var connection = new MySqlConnection(connectionString);
             connection.Open();
-            var query = @"INSERT INTO Usuarios (Nombre, Apellido, Email, Password, RolId, Avatar)
+            var query = @"INSERT INTO Usuario (Nombre, Apellido, Email, Password, RolId, Avatar)
                           VALUES (@nombre, @apellido, @email, @password, @rolId, @avatar)";
             using var command = new MySqlCommand(query, connection);
             command.Parameters.AddWithValue("@nombre", u.Nombre);
@@ -92,7 +92,7 @@ namespace TallerMecanico.Repositories
         {
             using var connection = new MySqlConnection(connectionString);
             connection.Open();
-            var query = @"UPDATE Usuarios 
+            var query = @"UPDATE Usuario
                           SET Nombre=@nombre, Apellido=@apellido, Email=@email, 
                               RolId=@rolId, Avatar=@avatar
                           WHERE Id=@id";
@@ -110,7 +110,7 @@ namespace TallerMecanico.Repositories
         {
             using var connection = new MySqlConnection(connectionString);
             connection.Open();
-            var query = "DELETE FROM Usuarios WHERE Id=@id";
+            var query = "DELETE FROM Usuario WHERE Id=@id";
             using var command = new MySqlCommand(query, connection);
             command.Parameters.AddWithValue("@id", id);
             command.ExecuteNonQuery();
@@ -121,7 +121,7 @@ namespace TallerMecanico.Repositories
             Usuario? usuario = null;
             using var connection = new MySqlConnection(connectionString);
             connection.Open();
-            var query = "SELECT * FROM Usuarios WHERE Email=@email";
+            var query = "SELECT * FROM Usuario WHERE Email=@email";
             using var command = new MySqlCommand(query, connection);
             command.Parameters.AddWithValue("@email", email);
             using var reader = command.ExecuteReader();
@@ -142,5 +142,7 @@ namespace TallerMecanico.Repositories
 
             return usuario;
         }
+
+        
     }
 }

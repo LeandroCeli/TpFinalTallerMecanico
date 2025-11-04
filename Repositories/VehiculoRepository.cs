@@ -19,8 +19,8 @@ namespace TallerMecanico.Repositories
             using var connection = new MySqlConnection(connectionString);
             connection.Open();
             var query = @"SELECT v.*, c.Nombre, c.Apellido 
-                          FROM Vehiculos v
-                          INNER JOIN Clientes c ON v.ClienteId = c.Id";
+                          FROM Vehiculo v
+                          INNER JOIN Cliente c ON v.ClienteId = c.Id";
             using var command = new MySqlCommand(query, connection);
             using var reader = command.ExecuteReader();
             while (reader.Read())
@@ -32,12 +32,13 @@ namespace TallerMecanico.Repositories
                     Patente = reader["Patente"].ToString(),
                     Marca = reader["Marca"].ToString(),
                     Modelo = reader["Modelo"].ToString(),
-                    Año = Convert.ToInt32(reader["Año"]),
+                    Anio = Convert.ToInt32(reader["Anio"]),
                     Color = reader["Color"].ToString(),
                     Cliente = new Cliente
                     {
                         Nombre = reader["Nombre"].ToString(),
                         Apellido = reader["Apellido"].ToString()
+
                     }
                 });
             }
@@ -49,7 +50,7 @@ namespace TallerMecanico.Repositories
             Vehiculo? v = null;
             using var connection = new MySqlConnection(connectionString);
             connection.Open();
-            var query = "SELECT * FROM Vehiculos WHERE Id=@id";
+            var query = "SELECT * FROM Vehiculo WHERE Id=@id";
             using var command = new MySqlCommand(query, connection);
             command.Parameters.AddWithValue("@id", id);
             using var reader = command.ExecuteReader();
@@ -62,26 +63,62 @@ namespace TallerMecanico.Repositories
                     Patente = reader["Patente"].ToString(),
                     Marca = reader["Marca"].ToString(),
                     Modelo = reader["Modelo"].ToString(),
-                    Año = Convert.ToInt32(reader["Año"]),
+                    Anio = Convert.ToInt32(reader["Anio"]),
                     Color = reader["Color"].ToString()
                 };
             }
             return v;
         }
 
+        // 🔹 NUEVO MÉTODO: Obtener vehículos por idCliente
+        public List<Vehiculo> ObtenerPorCliente(int idCliente)
+        {
+            var lista = new List<Vehiculo>();
+            using var connection = new MySqlConnection(connectionString);
+            connection.Open();
+            var query = @"SELECT v.*, c.Nombre, c.Apellido 
+                          FROM Vehiculo v
+                          INNER JOIN Clientes c ON v.ClienteId = c.Id
+                          WHERE v.ClienteId = @idCliente";
+            using var command = new MySqlCommand(query, connection);
+            command.Parameters.AddWithValue("@idCliente", idCliente);
+            using var reader = command.ExecuteReader();
+            while (reader.Read())
+            {
+                lista.Add(new Vehiculo
+                {
+                    Id = Convert.ToInt32(reader["Id"]),
+                    ClienteId = Convert.ToInt32(reader["ClienteId"]),
+                    Patente = reader["Patente"].ToString(),
+                    Marca = reader["Marca"].ToString(),
+                    Modelo = reader["Modelo"].ToString(),
+                    Anio = Convert.ToInt32(reader["Anio"]),
+                    Color = reader["Color"].ToString(),
+                    Cliente = new Cliente
+                    {
+                        Nombre = reader["Nombre"].ToString(),
+                        Apellido = reader["Apellido"].ToString()
+                    }
+                });
+            }
+            return lista;
+        }
+
         public void Crear(Vehiculo v)
         {
             using var connection = new MySqlConnection(connectionString);
             connection.Open();
-            var query = @"INSERT INTO Vehiculos (ClienteId, Patente, Marca, Modelo, Año, Color)
-                          VALUES (@clienteId, @patente, @marca, @modelo, @año, @color)";
+            var query = @"INSERT INTO Vehiculo (ClienteId, Patente, Marca, Modelo, Anio, Color,Kilometraje,Tipo)
+                          VALUES (@clienteId, @patente, @marca, @modelo, @Anio, @color)";
             using var command = new MySqlCommand(query, connection);
             command.Parameters.AddWithValue("@clienteId", v.ClienteId);
             command.Parameters.AddWithValue("@patente", v.Patente);
             command.Parameters.AddWithValue("@marca", v.Marca);
             command.Parameters.AddWithValue("@modelo", v.Modelo);
-            command.Parameters.AddWithValue("@año", v.Año);
+            command.Parameters.AddWithValue("@anio", v.Anio);
             command.Parameters.AddWithValue("@color", v.Color);
+            command.Parameters.AddWithValue("@kilometraje", v.Kilometraje);
+            command.Parameters.AddWithValue("@tipo", v.Tipo);
             command.ExecuteNonQuery();
         }
 
@@ -89,16 +126,16 @@ namespace TallerMecanico.Repositories
         {
             using var connection = new MySqlConnection(connectionString);
             connection.Open();
-            var query = @"UPDATE Vehiculos 
+            var query = @"UPDATE Vehiculo 
                           SET ClienteId=@clienteId, Patente=@patente, Marca=@marca, 
-                              Modelo=@modelo, Año=@año, Color=@color
+                              Modelo=@modelo, Anio=@Anio, Color=@color
                           WHERE Id=@id";
             using var command = new MySqlCommand(query, connection);
             command.Parameters.AddWithValue("@clienteId", v.ClienteId);
             command.Parameters.AddWithValue("@patente", v.Patente);
             command.Parameters.AddWithValue("@marca", v.Marca);
             command.Parameters.AddWithValue("@modelo", v.Modelo);
-            command.Parameters.AddWithValue("@año", v.Año);
+            command.Parameters.AddWithValue("@Anio", v.Anio);
             command.Parameters.AddWithValue("@color", v.Color);
             command.Parameters.AddWithValue("@id", v.Id);
             command.ExecuteNonQuery();
@@ -108,7 +145,7 @@ namespace TallerMecanico.Repositories
         {
             using var connection = new MySqlConnection(connectionString);
             connection.Open();
-            var query = "DELETE FROM Vehiculos WHERE Id=@id";
+            var query = "DELETE FROM Vehiculo WHERE Id=@id";
             using var command = new MySqlCommand(query, connection);
             command.Parameters.AddWithValue("@id", id);
             command.ExecuteNonQuery();
@@ -117,6 +154,45 @@ namespace TallerMecanico.Repositories
         public List<Vehiculo> GetAll()
         {
             return ObtenerTodos();
+        }
+
+        public Vehiculo? ObtenerPorPatente(string patente)
+        {
+            using var connection = new MySqlConnection(connectionString);
+            connection.Open();
+
+            var query = @"SELECT v.*, c.Nombre AS ClienteNombre, c.Telefono AS ClienteTelefono
+                  FROM Vehiculo v
+                  INNER JOIN Cliente c ON c.Id = v.ClienteId
+                  WHERE v.Patente = @patente";
+
+            using var command = new MySqlCommand(query, connection);
+            command.Parameters.AddWithValue("@patente", patente);
+
+            using var reader = command.ExecuteReader();
+            if (reader.Read())
+            {
+                return new Vehiculo
+                {
+                    Id = reader["Id"] != DBNull.Value ? Convert.ToInt32(reader["Id"]) : 0,
+                    ClienteId = reader["ClienteId"] != DBNull.Value ? Convert.ToInt32(reader["ClienteId"]) : 0,
+                    Patente = reader["Patente"]?.ToString() ?? "",
+                    Marca = reader["Marca"]?.ToString() ?? "",
+                    Modelo = reader["Modelo"]?.ToString() ?? "",
+                    Anio = reader["Anio"] != DBNull.Value ? Convert.ToInt32(reader["Anio"]) : 0,
+                    Color = reader["Color"]?.ToString() ?? "",
+                    Kilometraje = reader["Kilometraje"] != DBNull.Value ? Convert.ToInt32(reader["Kilometraje"]) : 0,
+                    Tipo = reader["Tipo"]?.ToString() ?? "",
+                    Cliente = new Cliente
+                    {
+                        Id = reader["ClienteId"] != DBNull.Value ? Convert.ToInt32(reader["ClienteId"]) : 0,
+                        Nombre = reader["ClienteNombre"]?.ToString() ?? "",
+                        Telefono = reader["ClienteTelefono"]?.ToString() ?? ""
+                    }
+                };
+            }
+
+            return null;
         }
     }
 }

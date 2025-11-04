@@ -16,26 +16,77 @@ namespace TallerMecanico.Controllers
             repoCliente = new ClienteRepository(conn);
         }
 
-        public IActionResult Index()
+        // 🔹 Muestra todos los vehículos (vista general)
+        public IActionResult Index(string? busqueda)
         {
-            var lista = repoVehiculo.ObtenerTodos();
-            return View(lista);
+            var vehiculos = repoVehiculo.ObtenerTodos();
+
+
+            if (!string.IsNullOrEmpty(busqueda))
+            {
+                var filtro = busqueda.Trim().ToLower();
+                vehiculos = vehiculos
+                    .Where(v => (v.Patente?.ToLower().Contains(filtro) ?? false) ||
+                                (v.Marca?.ToLower().Contains(filtro) ?? false) ||
+                                (v.Modelo?.ToLower().Contains(filtro) ?? false) ||
+                                (v.Color?.ToLower().Contains(filtro) ?? false) ||
+                                (v.Cliente?.Nombre?.ToLower().Contains(filtro) ?? false) ||
+                                (v.Cliente?.Apellido?.ToLower().Contains(filtro) ?? false))
+                    .ToList();
+            }
+
+            ViewBag.Busqueda = busqueda; // <-- enviamos el valor al Vie
+
+
+            return View(vehiculos);
         }
 
-        public IActionResult Crear()
+        // 🔹 NUEVO: Muestra vehículos filtrados por cliente
+        public IActionResult PorCliente(int idCliente)
         {
-            ViewBag.Clientes = repoCliente.ObtenerTodos();
-            return View();
+            // Obtener cliente para mostrar su nombre en la vista
+            var cliente = repoCliente.ObtenerPorId(idCliente);
+            if (cliente == null)
+            {
+                return NotFound();
+            }
+
+            // Obtener vehículos asociados a ese cliente
+            var vehiculos = repoVehiculo.ObtenerPorCliente(idCliente);
+
+            // Pasar cliente a la vista
+            ViewBag.Cliente = cliente;
+
+            return View("Index", vehiculos); // Reutiliza la misma vista Index
+        }
+
+        // ------------------------- CRUD -------------------------
+
+        public IActionResult Crear(int? ClienteId, String origen)
+        {
+            var vehiculo = new Vehiculo { ClienteId = ClienteId ?? 0 };
+            ViewData["Origen"] = origen;
+            return View(vehiculo);
         }
 
         [HttpPost]
-        public IActionResult Crear(Vehiculo v)
+        public IActionResult Crear(Vehiculo v, string origen)
         {
             if (ModelState.IsValid)
             {
                 repoVehiculo.Crear(v);
+                TempData["Mensaje"] = "Vehículo registrado correctamente ✅";
+                //if (v.ClienteId > 0)
+                if (origen == "cliente")
+                {
+
+                    return RedirectToAction("Index", "Clientes");
+                }
+                //Origen Vehiculo 
                 return RedirectToAction("Index");
             }
+
+            // Si el modelo no es válido, volvemos a mostrar la vista con errores
             ViewBag.Clientes = repoCliente.ObtenerTodos();
             return View(v);
         }
@@ -54,7 +105,7 @@ namespace TallerMecanico.Controllers
             if (ModelState.IsValid)
             {
                 repoVehiculo.Editar(v);
-                return RedirectToAction("Index");
+                return RedirectToAction("PorCliente", new { idCliente = v.ClienteId });
             }
             ViewBag.Clientes = repoCliente.ObtenerTodos();
             return View(v);
@@ -70,24 +121,20 @@ namespace TallerMecanico.Controllers
         [HttpPost, ActionName("Eliminar")]
         public IActionResult EliminarConfirmado(int id)
         {
+            var vehiculo = repoVehiculo.ObtenerPorId(id);
             repoVehiculo.Eliminar(id);
-            return RedirectToAction("Index");
+            return RedirectToAction("PorCliente", new { idCliente = vehiculo.ClienteId });
         }
 
-        public IActionResult DEtalles(int id)
+        public IActionResult Detalles(int id)
         {
             var vehiculo = repoVehiculo.ObtenerPorId(id);
             if (vehiculo == null) return NotFound();
 
-            // Trae también el cliente si querés mostrarlo
             var cliente = repoCliente.ObtenerPorId(vehiculo.ClienteId);
             vehiculo.Cliente = cliente;
 
             return View(vehiculo);
         }
-
-
-
-
     }
 }

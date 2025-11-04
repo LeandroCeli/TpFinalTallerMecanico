@@ -1,14 +1,13 @@
-@model IEnumerable<TallerMecanico.Models.Cliente>
+@model IEnumerable<TallerMecanico.Models.Vehiculo>
 
 @{
-    ViewData["Title"] = "Clientes";
+    ViewData["Title"] = "Vehículos";
 }
 
 <div class="container mt-4">
-    <h2 class="mb-4">Listado de Clientes</h2>
 
     <form asp-action="Index" method="get" class="d-flex mb-3">
-        <input type="text" name="busqueda" class="form-control me-2" placeholder="Buscar por DNI, nombre o apellido"
+        <input type="text" name="busqueda" class="form-control me-2" placeholder="Buscar por Dominiio, Marca , Modelo, Color, apellido. nombre"
             value="@ViewBag.Busqueda">
         <button type="submit" class="btn btn-primary">
             <i class="bi bi-search"></i> Buscar
@@ -16,21 +15,19 @@
         <a asp-action="Index" class="btn btn-secondary ms-2">Limpiar</a>
     </form>
 
-    <a asp-action="Crear" class="btn btn-success mb-3">
-        <i class="bi bi-person-plus"></i> Nuevo Cliente
-    </a>
+    <h2 class="mb-4">Listado de Vehículos</h2>
 
     <table class="table table-bordered table-hover">
         <thead class="table-dark">
             <tr>
                 <th>ID</th>
-                <th>DNI</th>
-                <th>Nombre</th>
-                <th>Apellido</th>
-                <th>Teléfono</th>
-                <th>Email</th>
-                <th>Dirección</th>
-                <th style="width: 180px;">Acciones</th>
+                <th>Patente</th>
+                <th>Marca</th>
+                <th>Modelo</th>
+                <th>Año</th>
+                <th>Color</th>
+                <th>Cliente</th>
+                <th style="width: 220px;">Acciones</th>
             </tr>
         </thead>
         <tbody>
@@ -38,13 +35,13 @@
             {
                 <tr>
                     <td>@item.Id</td>
-                    <td>@item.Dni</td>
-                    <td>@item.Nombre</td>
-                    <td>@item.Apellido</td>
-                    <td>@item.Telefono</td>
-                    <td>@item.Email</td>
-                    <td>@item.Direccion</td>
-                    <td class="text-center">
+                    <td>@item.Patente</td>
+                    <td>@item.Marca</td>
+                    <td>@item.Modelo</td>
+                    <td>@item.Anio</td>
+                    <td>@item.Color</td>
+                    <td>@($"{item.Cliente?.Nombre} {item.Cliente?.Apellido}")</td>
+                    <td>
                         <div class="dropdown">
                             <button class="btn btn-secondary btn-sm dropdown-toggle" type="button"
                                 data-bs-toggle="dropdown">
@@ -63,6 +60,14 @@
                                     </a>
                                 </li>
                                 <li>
+                                    <a class="dropdown-item" asp-controller="Vehiculos" asp-action="Crear"
+                                        asp-route-clienteId="@item.ClienteId" asp-route-origen="Vehiculo">
+                                        <i class="bi bi-car-front"></i> Agregar Vehículo
+                                    </a>
+
+                                </li>
+
+                                <li>
                                     <a class="dropdown-item text-danger" asp-action="Eliminar" asp-route-id="@item.Id">
                                         <i class="bi bi-trash"></i> Eliminar
                                     </a>
@@ -70,7 +75,6 @@
                             </ul>
                         </div>
                     </td>
-
                 </tr>
             }
         </tbody>

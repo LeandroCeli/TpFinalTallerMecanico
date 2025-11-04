@@ -1,0 +1,131 @@
+@{
+    ViewData["Title"] = "Gestión de Servicios (Vue)";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div id="app" class="container mt-4">
+    <h2 class="mb-4">Gestión de Servicios</h2>
+
+    <!-- Formulario -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">@Html.Raw("{{ servicio.id ? 'Editar Servicio' : 'Nuevo Servicio' }}")</h5>
+
+            <div @Html.Raw("@submit.prevent=\"guardarServicio\"")>
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label>Nombre</label>
+                        <input v-model="servicio.nombre" class="form-control" required />
+                    </div>
+                    <div class="col-md-4">
+                        <label>Costo Base</label>
+                        <input v-model="servicio.costoBase" type="number" class="form-control" required />
+                    </div>
+                    <div class="col-md-4">
+                        <label>Incluye Insumos</label>
+                        <input type="checkbox" v-model="servicio.incluyeInsumos" />
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label>Descripción</label>
+                    <textarea v-model="servicio.descripcion" class="form-control"></textarea>
+                </div>
+                <button type="button" class="btn btn-success me-2" @Html.Raw("@click=\"guardarServicio\"")>
+                    @Html.Raw("{{ servicio.id ? 'Actualizar' : 'Guardar' }}")
+                </button>
+                <button type="button" class="btn btn-secondary" @Html.Raw("@click=\"resetFormulario\"")>Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabla -->
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Descripción</th>
+                <th>Costo</th>
+                <th>Insumos</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr v-for="s in servicios" :key="s.id">
+                <td>@Html.Raw("{{ s.nombre }}")</td>
+                <td>@Html.Raw("{{ s.descripcion }}")</td>
+                <td>@Html.Raw("{{ '$' + s.costoBase.toFixed(2) }}")</td>
+                <td>@Html.Raw("{{ s.incluyeInsumos ? 'Sí' : 'No' }}")</td>
+                <td>
+                    @Html.Raw("<button class='btn btn-sm btn-primary me-1' @click=\"editarServicio(s)\">Editar</button>")
+                    @Html.Raw("<button class='btn btn-sm btn-danger' @click=\"eliminarServicio(s.id)\">Eliminar</button>")
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/vue@3.4.15/dist/vue.global.prod.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        const { createApp } = Vue;
+
+        createApp({
+            data() {
+                return {
+                    servicios: [],
+                    servicio: {
+                        id: 0,
+                        nombre: '',
+                        descripcion: '',
+                        costoBase: 0,
+                        incluyeInsumos: false
+                    }
+                };
+            },
+            methods: {
+                cargarServicios() {
+                    axios.get('/api/ServicioApi')
+                        .then(res => this.servicios = res.data)
+                        .catch(err => console.error(err));
+                },
+                guardarServicio() {
+                    if (this.servicio.id === 0) {
+                        axios.post('/api/ServicioApi', this.servicio)
+                            .then(() => {
+                                this.cargarServicios();
+                                this.resetFormulario();
+                            });
+                    } else {
+                        axios.put(`/api/ServicioApi/${this.servicio.id}`, this.servicio)
+                            .then(() => {
+                                this.cargarServicios();
+                                this.resetFormulario();
+                            });
+                    }
+                },
+                editarServicio(s) {
+                    this.servicio = { ...s };
+                },
+                eliminarServicio(id) {
+                    if (confirm("¿Estás seguro de eliminar este servicio?")) {
+                        axios.delete(`/api/ServicioApi/${id}`)
+                            .then(() => this.cargarServicios());
+                    }
+                },
+                resetFormulario() {
+                    this.servicio = {
+                        id: 0,
+                        nombre: '',
+                        descripcion: '',
+                        costoBase: 0,
+                        incluyeInsumos: false
+                    };
+                }
+            },
+            mounted() {
+                this.cargarServicios();
+            }
+        }).mount('#app');
+    </script>
+}

@@ -1,0 +1,261 @@
+@{
+    ViewData["Title"] = "Carga de Trabajo";
+}
+
+<div id="app" class="container mt-4">
+
+    <h2 class="text-center mb-4">🛠️ Cargar Trabajo</h2>
+
+    <!-- Buscar vehículo -->
+    <div class="card shadow p-3 mb-4">
+        <label class="fw-bold">Buscar por Patente</label>
+        <div class="input-group">
+            <!-- Usamos v-on: para evitar conflicto con Razor -->
+            <input v-model="patente" v-on:keyup.enter="buscarVehiculo" class="form-control" placeholder="Ej: ABC123" />
+            <button v-on:click="buscarVehiculo" class="btn btn-primary">Buscar</button>
+        </div>
+    </div>
+
+    <!-- Contenido principal -->
+    <div v-if="vehiculo" class="row">
+
+        <!-- Columna izquierda -->
+        <div class="col-md-8">
+            <div class="card shadow p-3 mb-4">
+                <h4 class="mb-3">🚗 Datos del Vehículo</h4>
+
+                <p><strong>Marca:</strong> {{ vehiculo.marca }} |
+                    <strong>Modelo:</strong> {{ vehiculo.modelo }} |
+                    <strong>Año:</strong> {{ vehiculo.anio }}
+                </p>
+                <p><strong>Color:</strong> {{ vehiculo.color }} |
+                    <strong>Kilometraje actual:</strong> {{ vehiculo.kilometraje }} km
+                </p>
+
+                <div class="mb-3">
+                    <label class="fw-bold">Kilometraje de salida</label>
+                    <input type="number" v-model="kilometrajeSalida" class="form-control" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="fw-bold">Observaciones generales</label>
+                    <textarea v-model="observaciones" class="form-control"></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label class="fw-bold">Agregar servicio</label>
+                    <div class="input-group">
+                        <select v-model="servicioSeleccionado" class="form-select">
+                            <option disabled value="">Seleccione un servicio</option>
+                            <option v-for="s in servicios" :key="s.id" :value="s.id">{{ s.nombre }}</option>
+                        </select>
+                        <button v-on:click="agregarServicio" class="btn btn-outline-secondary">Agregar</button>
+                    </div>
+                </div>
+
+                <!-- Servicios agregados -->
+                <ul class="list-group mb-3">
+                    <li v-for="(s, index) in serviciosAgregados" :key="index" class="list-group-item">
+                        <strong>{{ s.nombre }}</strong>
+                        <textarea v-model="s.comentario" class="form-control mt-2"
+                                  placeholder="Comentario adicional (opcional)"></textarea>
+                        <button v-on:click="quitarServicio(index)" class="btn btn-danger btn-sm mt-2">Quitar</button>
+                    </li>
+                </ul>
+
+                <button v-on:click="guardarTrabajo" class="btn btn-success w-100">
+                    💾 Guardar Trabajo
+                </button>
+            </div>
+        </div>
+
+        <!-- Columna derecha -->
+        <div class="col-md-4">
+            <div class="card shadow p-3">
+                <h4 class="mb-3">📋 Historial del Vehículo</h4>
+
+                <div v-if="loadingHistorial" class="text-muted">Cargando historial...</div>
+
+                <div v-if="!loadingHistorial && historial.length === 0" class="text-muted">
+                    No existen trabajos previos para este vehículo.
+                </div>
+
+                <ul class="list-group" v-if="!loadingHistorial && historial.length > 0">
+                    <!-- Se asume que cada item 't' tiene: id, fechaEntrega, observaciones, serviciosRealizados[] -->
+                    <li v-for="t in historial" :key="t.id" class="list-group-item">
+                        <strong>{{ formatDate(t.fechaEntrega) }}</strong>
+                        <div class="small text-muted mb-1">{{ t.observaciones }}</div>
+
+                        <ul class="mt-2">
+                            <li v-for="s in t.serviciosRealizados" :key="s.servicioId || s.id">
+                                ✅
+                                <!-- soporta varias estructuras: s.servicio.nombre, s.servicioNombre, s.nombre -->
+                                <span v-if="getServicioNombre(s)">{{ getServicioNombre(s) }}</span>
+                                <span v-else class="text-muted">Servicio</span>
+                                <small v-if="getComentario(s)" class="text-muted"> - {{ getComentario(s) }}</small>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+
+            </div>
+        </div>
+    </div>
+
+    <div v-if="vehiculo === null" class="alert alert-danger mt-3">
+        🚫 Vehículo no encontrado
+    </div>
+
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+    <script>
+        new Vue({
+            el: '#app',
+            data: {
+                patente: '',
+                vehiculo: undefined,
+                kilometrajeSalida: 0,
+                observaciones: '',
+                servicios: [],
+                servicioSeleccionado: '',
+                serviciosAgregados: [],
+                historial: [],
+                loadingHistorial: false
+            },
+            mounted() {
+                this.cargarServicios();
+            },
+            methods: {
+                buscarVehiculo() {
+                    if (!this.patente || this.patente.trim() === '') {
+                        alert('Ingrese una patente.');
+                        return;
+                    }
+                    // Debug
+                    console.log('Buscando vehículo:', this.patente);
+
+                    axios.get('/api/TrabajoApi/BuscarVehiculo', { params: { patente: this.patente } })
+                        .then(res => {
+                            console.log('Respuesta BuscarVehiculo:', res.data);
+                            this.vehiculo = res.data;
+                            this.kilometrajeSalida = res.data?.kilometraje ?? 0;
+                            this.cargarHistorial();
+                        })
+                        .catch(err => {
+                            console.warn('Vehículo no encontrado o error:', err);
+                            this.vehiculo = null;
+                            this.historial = [];
+                        });
+                },
+                cargarServicios() {
+                    axios.get('/api/TrabajoApi/Servicios')
+                        .then(res => {
+                            console.log('Servicios disponibles:', res.data);
+                            this.servicios = res.data;
+                        })
+                        .catch(err => {
+                            console.error('Error cargando servicios:', err);
+                            this.servicios = [];
+                        });
+                },
+                cargarHistorial() {
+                    if (!this.patente) return;
+                    this.loadingHistorial = true;
+                    axios.get('/api/TrabajoApi/Historial', { params: { patente: this.patente } })
+                        .then(res => {
+                            console.log('Historial recibido:', res.data);
+                            // Acomodamos distintos posibles formatos:
+                            // si el backend devuelve lista de Trabajo con ServiciosRealizados (objetos complejos),
+                            // lo dejamos tal cual; si devuelve otra estructura, hay que mapear.
+                            this.historial = res.data || [];
+                        })
+                        .catch(err => {
+                            console.error('Error cargando historial:', err);
+                            this.historial = [];
+                        })
+                        .finally(() => { this.loadingHistorial = false; });
+                },
+                agregarServicio() {
+                    const servicio = this.servicios.find(s => s.id === this.servicioSeleccionado);
+                    if (servicio) {
+                        this.serviciosAgregados.push({
+                            id: servicio.id,
+                            nombre: servicio.nombre,
+                            comentario: ''
+                        });
+                        this.servicioSeleccionado = '';
+                    }
+                },
+                quitarServicio(index) {
+                    this.serviciosAgregados.splice(index, 1);
+                },
+                guardarTrabajo() {
+                    if (!this.vehiculo) { alert('Busque primero un vehículo.'); return; }
+                    if (this.serviciosAgregados.length === 0) { alert('Debe agregar al menos un servicio.'); return; }
+
+                    const trabajo = {
+                        idVehiculo: this.vehiculo.id,
+                        usuarioId: (window.currentUserId ? window.currentUserId : 1),
+                        observaciones: this.observaciones,
+                        fechaEntrega: new Date().toISOString(),
+                        estado: "Finalizado",
+                        kilometrajeSalida: this.kilometrajeSalida,
+                        serviciosRealizados: this.serviciosAgregados.map(s => ({
+                            servicioId: s.id,
+                            comentario: s.comentario ?? ''
+                        }))
+                    };
+
+                    console.log('Enviando trabajo:', trabajo);
+
+                    axios.post('/api/TrabajoApi/Guardar', trabajo)
+                        .then(resp => {
+                            console.log('Guardar respuesta:', resp.data);
+                            alert('✅ Trabajo guardado correctamente');
+                            // refrescar historial en caso de que backend lo haya guardado
+                            this.cargarHistorial();
+                            this.resetearFormulario();
+                        })
+                        .catch(err => {
+                            console.error('Error guardando trabajo:', err.response || err);
+                            alert('❌ Error al guardar el trabajo');
+                        });
+                },
+                resetearFormulario() {
+                    // mantenemos patente para facilitar cargar varios trabajos si se desea:
+                    // this.patente = '';
+                    this.vehiculo = undefined;
+                    this.kilometrajeSalida = 0;
+                    this.observaciones = '';
+                    this.servicioSeleccionado = '';
+                    this.serviciosAgregados = [];
+                    this.historial = [];
+                },
+                formatDate(d) {
+                    if (!d) return '';
+                    const dt = new Date(d);
+                    return dt.toLocaleDateString('es-AR') + ' ' + dt.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' });
+                },
+                // helpers para soportar distintos formatos de servicio que venga del backend
+                getServicioNombre(s) {
+                    // posibles campos: s.servicio.nombre | s.servicioNombre | s.nombre
+                    if (!s) return '';
+                    if (s.servicio && (s.servicio.nombre || s.servicio.Nombre)) return s.servicio.nombre ?? s.servicio.Nombre;
+                    if (s.servicioNombre) return s.servicioNombre;
+                    if (s.nombre) return s.nombre;
+                    return '';
+                },
+                getComentario(s) {
+                    if (!s) return '';
+                    if (s.comentario) return s.comentario;
+                    if (s.Comentario) return s.Comentario;
+                    return '';
+                }
+            }
+        });
+    </script>
+}

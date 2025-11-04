@@ -1,0 +1,116 @@
+@{
+    ViewData["Title"] = "Iniciar Sesión";
+}
+
+<style>
+    body {
+        background-color: #f8fafc;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .login-card {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+        width: 380px;
+        padding: 2.5rem 2rem;
+        text-align: center;
+    }
+
+    .login-card img {
+        width: 90px;
+        margin-bottom: 1rem;
+    }
+
+    .login-card h2 {
+        color: #1e293b;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+    }
+
+    .form-control {
+        width: 100%;
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        padding: 0.75rem;
+        margin-bottom: 1rem;
+        font-size: 0.95rem;
+        transition: border-color 0.2s ease;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: #2563eb;
+        box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+    }
+
+    .btn-login {
+        background-color: #2563eb;
+        border: none;
+        color: #fff;
+        font-weight: 600;
+        border-radius: 8px;
+        width: 100%;
+        padding: 0.9rem;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+
+    .btn-login:hover {
+        background-color: #1d4ed8;
+        transform: translateY(-1px);
+    }
+
+    .error-msg {
+        background-color: #fee2e2;
+        border: 1px solid #fca5a5;
+        color: #b91c1c;
+        padding: 0.6rem;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+        font-size: 0.9rem;
+    }
+
+    footer {
+        position: absolute;
+        bottom: 10px;
+        text-align: center;
+        width: 100%;
+        color: #6b7280;
+        font-size: 0.85rem;
+    }
+
+    footer a {
+        color: #2563eb;
+        text-decoration: none;
+    }
+
+    footer a:hover {
+        text-decoration: underline;
+    }
+</style>
+
+<div class="login-card">
+    <img src="~/images/icono.png" alt="Logo del taller" />
+    <h2>Iniciar Sesión</h2>
+
+    @if (ViewBag.Error != null)
+    {
+        <div class="error-msg">@ViewBag.Error</div>
+    }
+
+    <form method="post" asp-action="Login">
+        <input type="email" name="email" placeholder="Correo electrónico" class="form-control" required />
+        <input type="password" name="password" placeholder="Contraseña" class="form-control" required />
+        <button type="submit" class="btn-login">
+            <i class="bi bi-box-arrow-in-right me-2"></i> Entrar
+        </button>
+    </form>
+</div>
+
+<footer>
+    © @DateTime.Now.Year - Taller Mecánico · <a href="#">Privacidad</a>
+</footer>

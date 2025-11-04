@@ -14,12 +14,24 @@ namespace TallerMecanico.Controllers
             repo = new ClienteRepository(conn);
         }
 
-        public IActionResult Index()
+        public IActionResult Index(string? busqueda)
         {
             var clientes = repo.ObtenerTodos();
+
+            if (!string.IsNullOrEmpty(busqueda))
+            {
+                var filtro = busqueda.Trim().ToLower();
+                clientes = clientes
+                    .Where(c => c.Dni.ToLower().Contains(filtro) ||
+                                c.Nombre.ToLower().Contains(filtro) ||
+                                c.Apellido.ToLower().Contains(filtro) ||
+                                c.Email.ToLower().Contains(filtro))
+                    .ToList();
+            }
+
+            ViewBag.Busqueda = busqueda; // <-- enviamos el valor al View
             return View(clientes);
         }
-
         public IActionResult Crear()
         {
             return View();
@@ -30,8 +42,10 @@ namespace TallerMecanico.Controllers
         {
             if (ModelState.IsValid)
             {
-                repo.Crear(cliente);
-                return RedirectToAction("Index");
+
+                int nuevoId = repo.Crear(cliente);
+                return RedirectToAction("Crear", "Vehiculos", new { ClienteId = nuevoId,origen = "cliente" });
+                //return RedirectToAction("Index");
             }
             return View(cliente);
         }

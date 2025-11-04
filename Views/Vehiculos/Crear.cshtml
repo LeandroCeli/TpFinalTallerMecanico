@@ -1,0 +1,116 @@
+@model TallerMecanico.Models.Vehiculo
+
+@{
+    ViewData["Title"] = "Registrar Vehículo";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4">Registrar Vehículo</h2>
+
+
+
+
+    @if (TempData["Mensaje"] != null)
+    {
+        <div class="alert alert-success">
+            <i class="bi bi-check-circle"></i> @TempData["Mensaje"]
+        </div>
+
+        <script>
+            // 🔄 Redirigir automáticamente después de 1.5 segundos
+            setTimeout(function () {
+                window.location.href = '@Url.Action("PorCliente", "Vehiculos", new { idCliente = ViewBag.ClienteId })';
+            }, 1000);
+        </script>
+
+        <p class="mt-3">Redirigiendo...</p>
+    }
+    else
+    {
+        <form asp-action="Crear" method="post" class="needs-validation">
+            @Html.Hidden("origen", ViewData["Origen"])
+
+            <input type="hidden" asp-for="ClienteId" />
+
+
+
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <label class="form-label">Patente</label>
+                    <input asp-for="Patente" class="form-control" placeholder="Ej: ABC123" />
+                    <span asp-validation-for="Patente" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label">Marca</label>
+                    <select asp-for="Marca" class="form-select">
+                        <option value="">Seleccione una marca...</option>
+                        <option>Toyota</option>
+                        <option>Ford</option>
+                        <option>Fiat</option>
+                        <option>Chevrolet</option>
+                        <option>Renault</option>
+                        <option>Volkswagen</option>
+                        <option>Peugeot</option>
+                        <option>Citroën</option>
+                        <option>Honda</option>
+                        <option>Otra</option>
+                    </select>
+                    <span asp-validation-for="Marca" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label">Modelo</label>
+                    <input asp-for="Modelo" class="form-control" />
+                    <span asp-validation-for="Modelo" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-3">
+                    <label class="form-label">Año</label>
+                    <input asp-for="Anio" type="number" class="form-control" />
+                    <span asp-validation-for="Anio" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">Color</label>
+                    <input asp-for="Color" class="form-control" />
+                    <span asp-validation-for="Color" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">Kilometraje</label>
+                    <input asp-for="Kilometraje" type="number" class="form-control" placeholder="Ej: 75000" />
+                    <span asp-validation-for="Kilometraje" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">Tipo de Vehículo</label>
+                    <select asp-for="Tipo" class="form-select">
+                        <option value="">Seleccione...</option>
+                        <option>Personal</option>
+                        <option>Trabajo</option>
+                        <option>Otro</option>
+                    </select>
+                    <span asp-validation-for="Tipo" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <button type="submit" class="btn btn-success me-2">
+                    <i class="bi bi-save"></i> Guardar
+                </button>
+                <a asp-controller="Clientes" asp-action="Index" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Cancelar
+                </a>
+            </div>
+        </form>
+    }
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

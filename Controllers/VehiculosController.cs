@@ -44,23 +44,35 @@ namespace TallerMecanico.Controllers
         }
 
         // 🔹 NUEVO: Muestra vehículos filtrados por cliente
+
+        /*  public IActionResult PorCliente(int idCliente)
+          {
+              // Obtener cliente para mostrar su nombre en la vista
+              var cliente = repoCliente.ObtenerPorId(idCliente);
+              if (cliente == null)
+              {
+                  return NotFound();
+              }
+
+              // Obtener vehículos asociados a ese cliente
+              var vehiculos = repoVehiculo.ObtenerPorCliente(idCliente);
+
+              // Pasar cliente a la vista
+              ViewBag.Cliente = cliente;
+
+              return View("Index", vehiculos); // Reutiliza la misma vista Index
+          }
+  */
         public IActionResult PorCliente(int idCliente)
         {
-            // Obtener cliente para mostrar su nombre en la vista
             var cliente = repoCliente.ObtenerPorId(idCliente);
-            if (cliente == null)
-            {
-                return NotFound();
-            }
-
-            // Obtener vehículos asociados a ese cliente
             var vehiculos = repoVehiculo.ObtenerPorCliente(idCliente);
 
-            // Pasar cliente a la vista
             ViewBag.Cliente = cliente;
-
-            return View("Index", vehiculos); // Reutiliza la misma vista Index
+            return View("PorCliente", vehiculos);
         }
+
+
 
         // ------------------------- CRUD -------------------------
 

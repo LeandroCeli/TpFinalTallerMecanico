@@ -96,7 +96,7 @@ namespace TallerMecanico.Repositories
                         INSERT INTO Trabajo 
                         (VehiculoId, UsuarioId, Observaciones, FechaEntrega, Estado, KilometrajeSalida)
                         VALUES 
-                        (@vehiculo, @usuario, @obs, @fin, @estado, @kmsalida);
+                        (@vehiculo, @usuario, @obs, @fechaEntrega, @estado, @kmsalida);
                         SELECT LAST_INSERT_ID();";
 
                 int idTrabajo;
@@ -106,7 +106,7 @@ namespace TallerMecanico.Repositories
                     cmd.Parameters.AddWithValue("@vehiculo", trabajo.IdVehiculo);
                     cmd.Parameters.AddWithValue("@usuario", trabajo.UsuarioId);
                     cmd.Parameters.AddWithValue("@obs", trabajo.Observaciones ?? "");
-                    cmd.Parameters.AddWithValue("@fin", (object?)trabajo.FechaFin ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@fechaEntrega", DateTime.Now);
                     cmd.Parameters.AddWithValue("@estado", trabajo.Estado);
                     cmd.Parameters.AddWithValue("@kmsalida", trabajo.KilometrajeSalida);
 

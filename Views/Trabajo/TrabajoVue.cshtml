@@ -58,7 +58,7 @@
                     <li v-for="(s, index) in serviciosAgregados" :key="index" class="list-group-item">
                         <strong>{{ s.nombre }}</strong>
                         <textarea v-model="s.comentario" class="form-control mt-2"
-                                  placeholder="Comentario adicional (opcional)"></textarea>
+                            placeholder="Comentario adicional (opcional)"></textarea>
                         <button v-on:click="quitarServicio(index)" class="btn btn-danger btn-sm mt-2">Quitar</button>
                     </li>
                 </ul>
@@ -81,18 +81,18 @@
                 </div>
 
                 <ul class="list-group" v-if="!loadingHistorial && historial.length > 0">
-                    <!-- Se asume que cada item 't' tiene: id, fechaEntrega, observaciones, serviciosRealizados[] -->
+
                     <li v-for="t in historial" :key="t.id" class="list-group-item">
-                        <strong>{{ formatDate(t.fechaEntrega) }}</strong>
-                        <div class="small text-muted mb-1">{{ t.observaciones }}</div>
+                        <strong>{{ formatDate(t.fechafin) }}</strong>
+
 
                         <ul class="mt-2">
                             <li v-for="s in t.serviciosRealizados" :key="s.servicioId || s.id">
                                 ✅
-                                <!-- soporta varias estructuras: s.servicio.nombre, s.servicioNombre, s.nombre -->
+
                                 <span v-if="getServicioNombre(s)">{{ getServicioNombre(s) }}</span>
                                 <span v-else class="text-muted">Servicio</span>
-                                <small v-if="getComentario(s)" class="text-muted"> - {{ getComentario(s) }}</small>
+
                             </li>
                         </ul>
                     </li>

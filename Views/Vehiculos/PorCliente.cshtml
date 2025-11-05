@@ -1,0 +1,75 @@
+@model IEnumerable<TallerMecanico.Models.Vehiculo>
+
+@{
+    var cliente = ViewBag.Cliente;
+    ViewData["Title"] = "Vehículos del Cliente";
+}
+
+<div class="container mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h2 class="mb-1">🚗 Vehículos de @cliente.Nombre @cliente.Apellido</h2>
+            <p class="text-muted">
+                <strong>DNI:</strong> @cliente.Dni |
+                <strong>Tel:</strong> @cliente.Telefono
+            </p>
+        </div>
+
+        <div>
+            <a asp-controller="Clientes" asp-action="Index" class="btn btn-secondary me-2">
+                ⬅️ Volver a Clientes
+            </a>
+
+            <a asp-controller="Vehiculos" asp-action="Crear" asp-route-clienteId="@cliente.Id" class="btn btn-primary">
+                ➕ Registrar Vehículo
+            </a>
+        </div>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-warning text-center">
+            ⚠️ Este cliente aún no tiene vehículos registrados.
+        </div>
+    }
+    else
+    {
+        <table class="table table-bordered table-striped text-center">
+            <thead class="table-dark">
+                <tr>
+                    <th>Patente</th>
+                    <th>Marca</th>
+                    <th>Modelo</th>
+                    <th>Año</th>
+                    <th>Kilometraje</th>
+                    <th style="width:200px;">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var v in Model)
+                {
+                    <tr>
+                        <td>@v.Patente</td>
+                        <td>@v.Marca</td>
+                        <td>@v.Modelo</td>
+                        <td>@v.Anio</td>
+                        <td>@v.Kilometraje km</td>
+
+                        <td>
+                            <a asp-controller="Vehiculos" asp-action="Historial" asp-route-id="@v.Id"
+                               class="btn btn-sm btn-info me-2">
+                                📋 Historial
+                            </a>
+
+                            <a asp-controller="Vehiculos" asp-action="Edit" asp-route-id="@v.Id"
+                               class="btn btn-sm btn-warning">
+                                ✏️ Editar
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>

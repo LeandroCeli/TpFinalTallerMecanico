@@ -78,7 +78,7 @@ namespace TallerMecanico.Repositories
             connection.Open();
             var query = @"SELECT v.*, c.Nombre, c.Apellido 
                           FROM Vehiculo v
-                          INNER JOIN Clientes c ON v.ClienteId = c.Id
+                          INNER JOIN Cliente c ON v.ClienteId = c.Id
                           WHERE v.ClienteId = @idCliente";
             using var command = new MySqlCommand(query, connection);
             command.Parameters.AddWithValue("@idCliente", idCliente);

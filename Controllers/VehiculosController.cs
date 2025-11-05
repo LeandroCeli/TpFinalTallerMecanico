@@ -8,12 +8,14 @@ namespace TallerMecanico.Controllers
     {
         private readonly VehiculoRepository repoVehiculo;
         private readonly ClienteRepository repoCliente;
+        private readonly TrabajoRepository repoTrabajo;
 
         public VehiculosController(IConfiguration config)
         {
             string conn = config.GetConnectionString("DefaultConnection");
             repoVehiculo = new VehiculoRepository(conn);
             repoCliente = new ClienteRepository(conn);
+            repoTrabajo = new TrabajoRepository(conn);
         }
 
         // 🔹 Muestra todos los vehículos (vista general)
@@ -136,5 +138,23 @@ namespace TallerMecanico.Controllers
 
             return View(vehiculo);
         }
+        public IActionResult Historial(int id)
+        {
+            var vehiculo = repoVehiculo.ObtenerPorId(id);
+            if (vehiculo == null) return NotFound();
+
+            // ✅ Si Cliente es null, lo buscamos con ClienteId
+            if (vehiculo.Cliente == null && vehiculo.ClienteId > 0)
+            {
+                vehiculo.Cliente = repoCliente.ObtenerPorId(vehiculo.ClienteId);
+            }
+
+
+            var historial = repoTrabajo.GetHistorialPorVehiculo(id);
+
+            ViewBag.Vehiculo = vehiculo;
+            return View(historial);
+        }
+
     }
 }

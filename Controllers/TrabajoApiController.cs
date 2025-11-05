@@ -44,7 +44,8 @@ namespace TallerMecanico.Controllers.Api
 
             // trabajo.UsuarioId = ObtenerUsuarioId();
             var id = repoTrabajo.Create(trabajo);
-
+           
+            repoVehiculo.ActualizarKilometraje(trabajo.IdVehiculo, trabajo.KilometrajeSalida);
 
             return Ok(new { id });
         }

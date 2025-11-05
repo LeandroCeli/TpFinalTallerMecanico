@@ -7,8 +7,8 @@
 <div class="container mt-4">
 
     <form asp-action="Index" method="get" class="d-flex mb-3">
-        <input type="text" name="busqueda" class="form-control me-2" placeholder="Buscar por Dominiio, Marca , Modelo, Color, apellido. nombre"
-            value="@ViewBag.Busqueda">
+        <input type="text" name="busqueda" class="form-control me-2"
+            placeholder="Buscar por Dominiio, Marca , Modelo, Color, apellido. nombre" value="@ViewBag.Busqueda">
         <button type="submit" class="btn btn-primary">
             <i class="bi bi-search"></i> Buscar
         </button>
@@ -49,9 +49,9 @@
                             </button>
                             <ul class="dropdown-menu">
                                 <li>
-                                    <a class="dropdown-item" asp-controller="Vehiculos" asp-action="Index"
-                                        asp-route-idCliente="@item.Id">
-                                        <i class="bi bi-car-front"></i> Vehículo/s
+                                    <a class="dropdown-item" asp-controller="Vehiculos" asp-action="Historial"
+                                        asp-route-id="@item.Id">
+                                        <i class="bi bi-clock-history"></i> Historial / Trabajos
                                     </a>
                                 </li>
                                 <li>

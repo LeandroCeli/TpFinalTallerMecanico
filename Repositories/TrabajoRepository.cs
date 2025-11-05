@@ -183,17 +183,18 @@ namespace TallerMecanico.Repositories
             connection.Open();
 
             var query = @"
-        SELECT 
-            t.Id AS TrabajoId, t.Observaciones, t.FechaEntrega, t.Estado,
-            v.Id AS VehiculoId, v.Patente, v.Marca, v.Modelo,
-            ts.ServicioId, s.Nombre AS ServicioNombre, ts.CostoAplicado, ts.Observaciones
-        FROM Trabajo t
-        INNER JOIN Vehiculo v ON v.Id = t.VehiculoId
-        INNER JOIN TrabajoServicio ts ON ts.TrabajoId = t.Id
-        INNER JOIN Servicio s ON s.Id = ts.ServicioId
-        WHERE t.VehiculoId = @id
-        ORDER BY t.FechaEntrega DESC;
-    ";
+                        SELECT 
+                            t.Id AS TrabajoId, t.Observaciones, t.FechaEntrega, t.Estado,
+                            t.KilometrajeSalida, -- ✅ agregado
+                            v.Id AS VehiculoId, v.Patente, v.Marca, v.Modelo,
+                            ts.ServicioId, s.Nombre AS ServicioNombre, ts.CostoAplicado, ts.Observaciones
+                        FROM Trabajo t
+                        INNER JOIN Vehiculo v ON v.Id = t.VehiculoId
+                        INNER JOIN TrabajoServicio ts ON ts.TrabajoId = t.Id
+                        INNER JOIN Servicio s ON s.Id = ts.ServicioId
+                        WHERE t.VehiculoId = @id
+                        ORDER BY t.FechaEntrega DESC;
+                    ";
 
             using var command = new MySqlCommand(query, connection);
             command.Parameters.AddWithValue("@id", idVehiculo);
@@ -214,8 +215,13 @@ namespace TallerMecanico.Repositories
                         Id = trabajoId,
                         IdVehiculo = Convert.ToInt32(reader["VehiculoId"]),
                         Observaciones = reader["Observaciones"].ToString(),
-                        // FechaFin = Convert.ToDateTime(reader["FechaEntrega"]),
+                        FechaFin = reader.IsDBNull(reader.GetOrdinal("FechaEntrega"))
+    ? null
+    : Convert.ToDateTime(reader["FechaEntrega"]),
                         Estado = reader["Estado"].ToString(),
+                        KilometrajeSalida = reader.IsDBNull(reader.GetOrdinal("KilometrajeSalida"))
+        ? 0
+        : Convert.ToInt32(reader["KilometrajeSalida"]),  // ✅ aquí
                         Vehiculo = new Vehiculo
                         {
                             Id = Convert.ToInt32(reader["VehiculoId"]),
@@ -223,8 +229,9 @@ namespace TallerMecanico.Repositories
                             Marca = reader["Marca"].ToString(),
                             Modelo = reader["Modelo"].ToString()
                         },
-                        ServiciosRealizados = new List<TrabajoServicio>() // ✅ lista de servicios
+                        ServiciosRealizados = new List<TrabajoServicio>()
                     };
+
 
                     lista.Add(trabajoActual);
                 }
@@ -245,6 +252,8 @@ namespace TallerMecanico.Repositories
 
             return lista;
         }
+
+
 
     }
 }

@@ -194,5 +194,20 @@ namespace TallerMecanico.Repositories
 
             return null;
         }
+        public void ActualizarKilometraje(int idVehiculo, int nuevoKilometraje)
+        {
+            using var connection = new MySqlConnection(connectionString);
+            connection.Open();
+
+            var query = @"UPDATE Vehiculo 
+                  SET Kilometraje = @km 
+                  WHERE Id = @id";
+
+            using var command = new MySqlCommand(query, connection);
+            command.Parameters.AddWithValue("@km", nuevoKilometraje);
+            command.Parameters.AddWithValue("@id", idVehiculo);
+
+            command.ExecuteNonQuery();
+        }
     }
 }

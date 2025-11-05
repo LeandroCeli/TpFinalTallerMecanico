@@ -1,0 +1,61 @@
+@model IEnumerable<TallerMecanico.Models.Trabajo>
+@{
+    var v = ViewBag.Vehiculo;
+    ViewData["Title"] = "Historial del Vehículo";
+}
+
+<div class="container mt-4">
+
+    <h2 class="mb-4">📋 Historial del Vehículo</h2>
+
+    <!-- Datos del Vehículo -->
+    <div class="card mb-4 p-3 shadow">
+        <h5 class="fw-bold">Vehículo</h5>
+        <p>
+            <strong>Patente:</strong> @v.Patente <br />
+            <strong>Marca:</strong> @v.Marca <br />
+            <strong>Modelo:</strong> @v.Modelo <br />
+            <strong>Año:</strong> @v.Anio
+        </p>
+        <a asp-controller="Vehiculos" asp-action="Index" class="btn btn-secondary btn-sm">⬅️ Volver</a>
+    </div>
+
+    <!-- Historial -->
+    <h5 class="fw-bold mb-3">🛠️ Trabajos realizados</h5>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-warning">No hay trabajos registrados para este vehículo.</div>
+    }
+    else
+    {
+        <table class="table table-bordered table-hover shadow">
+            <thead class="table-dark">
+                <tr>
+                    <th>Fecha</th>
+                    <th>Kilometraje</th>
+                    <th>Servicios</th>
+                    <th>Observaciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var t in Model)
+                {
+                    <tr>
+                        <td>@t.FechaFin?.ToString("dd/MM/yyyy")</td>
+                        <td>@t.KilometrajeSalida km</td>
+                        <td>
+                            <ul>
+                                @foreach (var s in t.ServiciosRealizados)
+                                {
+                                    <li>✅ @s.Servicio.Nombre</li>
+                                }
+                            </ul>
+                        </td>
+                        <td>@t.Observaciones</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>

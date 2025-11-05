@@ -108,19 +108,32 @@ namespace TallerMecanico.Repositories
         {
             using var connection = new MySqlConnection(connectionString);
             connection.Open();
-            var query = @"INSERT INTO Vehiculo (ClienteId, Patente, Marca, Modelo, Anio, Color,Kilometraje,Tipo)
-                          VALUES (@clienteId, @patente, @marca, @modelo, @Anio, @color)";
+
+            // ✅ Validación de patente existente
+            if (PatenteExiste(v.Patente))
+                throw new Exception("La patente ingresada ya existe en el sistema.");
+
+            var query = @"
+        INSERT INTO Vehiculo 
+        (ClienteId, Patente, Marca, Modelo, Anio, Color, Kilometraje, Tipo, FechaRegistro, Activo)
+        VALUES 
+        (@clienteId, @patente, @marca, @modelo, @anio, @color, @kilometraje, @tipo, NOW(), 1);
+    ";
+
             using var command = new MySqlCommand(query, connection);
             command.Parameters.AddWithValue("@clienteId", v.ClienteId);
             command.Parameters.AddWithValue("@patente", v.Patente);
-            command.Parameters.AddWithValue("@marca", v.Marca);
-            command.Parameters.AddWithValue("@modelo", v.Modelo);
+            command.Parameters.AddWithValue("@marca", v.Marca ?? "");
+            command.Parameters.AddWithValue("@modelo", v.Modelo ?? "");
             command.Parameters.AddWithValue("@anio", v.Anio);
-            command.Parameters.AddWithValue("@color", v.Color);
+            command.Parameters.AddWithValue("@color", v.Color ?? "");
             command.Parameters.AddWithValue("@kilometraje", v.Kilometraje);
-            command.Parameters.AddWithValue("@tipo", v.Tipo);
+            command.Parameters.AddWithValue("@tipo", v.Tipo ?? "");
+
             command.ExecuteNonQuery();
         }
+
+
 
         public void Editar(Vehiculo v)
         {
@@ -209,5 +222,21 @@ namespace TallerMecanico.Repositories
 
             command.ExecuteNonQuery();
         }
+
+
+        public bool PatenteExiste(string patente)
+        {
+            using var connection = new MySqlConnection(connectionString);
+            connection.Open();
+
+            var query = "SELECT COUNT(*) FROM Vehiculo WHERE Patente = @patente";
+            using var command = new MySqlCommand(query, connection);
+
+            command.Parameters.AddWithValue("@patente", patente);
+
+            int count = Convert.ToInt32(command.ExecuteScalar());
+            return count > 0;
+        }
+
     }
 }

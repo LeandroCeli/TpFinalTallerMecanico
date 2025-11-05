@@ -114,5 +114,58 @@ namespace TallerMecanico.Repositories
             command.Parameters.AddWithValue("@id", id);
             command.ExecuteNonQuery();
         }
+
+        public IEnumerable<Cliente> ObtenerPaginado(int page, int pageSize, out int totalRegistros, string? filtro = null)
+        {
+            using var connection = new MySqlConnection(connectionString);
+            connection.Open();
+
+            string where = "";
+            if (!string.IsNullOrEmpty(filtro))
+                where = "WHERE Nombre LIKE @filtro OR Apellido LIKE @filtro OR Dni LIKE @filtro OR Email LIKE @filtro";
+
+            string sqlCount = $"SELECT COUNT(*) FROM Cliente {where}";
+            using var cmdCount = new MySqlCommand(sqlCount, connection);
+            if (!string.IsNullOrEmpty(filtro))
+                cmdCount.Parameters.AddWithValue("@filtro", $"%{filtro}%");
+
+            totalRegistros = Convert.ToInt32(cmdCount.ExecuteScalar());
+
+            int offset = (page - 1) * pageSize;
+
+            string sql = $@"
+                            SELECT * FROM Cliente
+                            {where}
+                            ORDER BY Apellido, Nombre
+                            LIMIT @size OFFSET @offset";
+
+            using var cmd = new MySqlCommand(sql, connection);
+            cmd.Parameters.AddWithValue("@size", pageSize);
+            cmd.Parameters.AddWithValue("@offset", offset);
+            if (!string.IsNullOrEmpty(filtro))
+                cmd.Parameters.AddWithValue("@filtro", $"%{filtro}%");
+
+            using var reader = cmd.ExecuteReader();
+            var clientes = new List<Cliente>();
+
+            while (reader.Read())
+            {
+                clientes.Add(new Cliente
+                {
+                    Id = reader.GetInt32("Id"),
+                    Nombre = reader.GetString("Nombre"),
+                    Apellido = reader.GetString("Apellido"),
+                    Dni = reader.GetString("Dni"),
+                    Telefono = reader.GetString("Telefono"),
+                    Email = reader.GetString("Email")
+                });
+            }
+
+            return clientes;
+        }
+
+
+
+
     }
 }

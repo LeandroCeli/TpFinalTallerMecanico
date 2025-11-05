@@ -79,4 +79,32 @@
             }
         </tbody>
     </table>
+
+    @if (ViewBag.TotalPaginas > 1)
+    {
+        <nav class="mt-3">
+            <ul class="pagination justify-content-center">
+
+                <li class="page-item @(ViewBag.PaginaActual == 1 ? "disabled" : "")">
+                    <a class="page-link" asp-route-page="@(ViewBag.PaginaActual - 1)"
+                        asp-route-busqueda="@ViewBag.Busqueda">« Anterior</a>
+                </li>
+
+                @for (int i = 1; i <= ViewBag.TotalPaginas; i++)
+                {
+                    <li class="page-item @(i == ViewBag.PaginaActual ? "active" : "")">
+                        <a class="page-link" asp-route-page="@i" asp-route-busqueda="@ViewBag.Busqueda">@i</a>
+                    </li>
+                }
+
+                <li class="page-item @(ViewBag.PaginaActual == ViewBag.TotalPaginas ? "disabled" : "")">
+                    <a class="page-link" asp-route-page="@(ViewBag.PaginaActual + 1)"
+                        asp-route-busqueda="@ViewBag.Busqueda">Siguiente »</a>
+                </li>
+
+            </ul>
+        </nav>
+    }
+
+
 </div>

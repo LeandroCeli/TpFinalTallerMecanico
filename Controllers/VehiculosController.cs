@@ -19,29 +19,45 @@ namespace TallerMecanico.Controllers
         }
 
         // 🔹 Muestra todos los vehículos (vista general)
-        public IActionResult Index(string? busqueda)
+        public IActionResult Index(string? busqueda, int page = 1)
         {
+            const int pageSize = 5; // cantidad de vehículos por página
+
             var vehiculos = repoVehiculo.ObtenerTodos();
 
-
+            // 🔍 FILTRO
             if (!string.IsNullOrEmpty(busqueda))
             {
                 var filtro = busqueda.Trim().ToLower();
                 vehiculos = vehiculos
-                    .Where(v => (v.Patente?.ToLower().Contains(filtro) ?? false) ||
-                                (v.Marca?.ToLower().Contains(filtro) ?? false) ||
-                                (v.Modelo?.ToLower().Contains(filtro) ?? false) ||
-                                (v.Color?.ToLower().Contains(filtro) ?? false) ||
-                                (v.Cliente?.Nombre?.ToLower().Contains(filtro) ?? false) ||
-                                (v.Cliente?.Apellido?.ToLower().Contains(filtro) ?? false))
+                    .Where(v =>
+                        (v.Patente?.ToLower().Contains(filtro) ?? false) ||
+                        (v.Marca?.ToLower().Contains(filtro) ?? false) ||
+                        (v.Modelo?.ToLower().Contains(filtro) ?? false) ||
+                        (v.Color?.ToLower().Contains(filtro) ?? false) ||
+                        (v.Cliente?.Nombre?.ToLower().Contains(filtro) ?? false) ||
+                        (v.Cliente?.Apellido?.ToLower().Contains(filtro) ?? false)
+                    )
                     .ToList();
             }
 
-            ViewBag.Busqueda = busqueda; // <-- enviamos el valor al Vie
+            // 📊 PAGINADO
+            int totalRegistros = vehiculos.Count;
+            int totalPaginas = (int)Math.Ceiling((double)totalRegistros / pageSize);
 
+            vehiculos = vehiculos
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            // 📨 ENVIAR DATOS A LA VISTA
+            ViewBag.Busqueda = busqueda;
+            ViewBag.PaginaActual = page;
+            ViewBag.TotalPaginas = totalPaginas;
 
             return View(vehiculos);
         }
+
 
         // 🔹 NUEVO: Muestra vehículos filtrados por cliente
 
@@ -86,23 +102,41 @@ namespace TallerMecanico.Controllers
         [HttpPost]
         public IActionResult Crear(Vehiculo v, string origen)
         {
+            ModelState.Remove("origen");
             if (ModelState.IsValid)
             {
-                repoVehiculo.Crear(v);
-                TempData["Mensaje"] = "Vehículo registrado correctamente ✅";
-                //if (v.ClienteId > 0)
-                if (origen == "cliente")
+                try
                 {
+                    repoVehiculo.Crear(v);
+                    TempData["Mensaje"] = "Vehículo registrado correctamente ✅";
 
-                    return RedirectToAction("Index", "Clientes");
+                    // ✅ Si vino desde Clientes, volvemos a la vista de vehículos del cliente
+                    if (origen == "cliente")
+                    {
+                        return RedirectToAction("PorCliente", "Vehiculos", new { idCliente = v.ClienteId });
+                    }
+
+                    // ✅ Si vino desde menú Vehículos, volvemos a Vehículos/Index
+                    return RedirectToAction("Index");
                 }
-                //Origen Vehiculo 
-                return RedirectToAction("Index");
+                catch (Exception ex)
+                {
+                    ModelState.AddModelError("", ex.Message);
+                    return View(v);
+                }
             }
 
-            // Si el modelo no es válido, volvemos a mostrar la vista con errores
+            // ❌ Si el modelo no es válido
             ViewBag.Clientes = repoCliente.ObtenerTodos();
+            foreach (var error in ModelState)
+            {
+                foreach (var subError in error.Value.Errors)
+                {
+                    Console.WriteLine($"❌ Campo: {error.Key} - Error: {subError.ErrorMessage}");
+                }
+            }
             return View(v);
+
         }
 
         public IActionResult Editar(int id)

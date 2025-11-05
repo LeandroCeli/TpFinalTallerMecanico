@@ -14,24 +14,23 @@ namespace TallerMecanico.Controllers
             repo = new ClienteRepository(conn);
         }
 
-        public IActionResult Index(string? busqueda)
+        public IActionResult Index(int page = 1, string? busqueda = null)
         {
-            var clientes = repo.ObtenerTodos();
+            int pageSize = 5; // cantidad por página
+            int totalRegistros;
 
-            if (!string.IsNullOrEmpty(busqueda))
-            {
-                var filtro = busqueda.Trim().ToLower();
-                clientes = clientes
-                    .Where(c => c.Dni.ToLower().Contains(filtro) ||
-                                c.Nombre.ToLower().Contains(filtro) ||
-                                c.Apellido.ToLower().Contains(filtro) ||
-                                c.Email.ToLower().Contains(filtro))
-                    .ToList();
-            }
+            var clientes = repo.ObtenerPaginado(page, pageSize, out totalRegistros, busqueda);
 
-            ViewBag.Busqueda = busqueda; // <-- enviamos el valor al View
+            ViewBag.TotalPaginas = (int)Math.Ceiling((double)totalRegistros / pageSize);
+            ViewBag.PaginaActual = page;
+            ViewBag.Busqueda = busqueda;
+
             return View(clientes);
         }
+
+
+
+
         public IActionResult Crear()
         {
             return View();
@@ -44,7 +43,7 @@ namespace TallerMecanico.Controllers
             {
 
                 int nuevoId = repo.Crear(cliente);
-                return RedirectToAction("Crear", "Vehiculos", new { ClienteId = nuevoId,origen = "cliente" });
+                return RedirectToAction("Crear", "Vehiculos", new { ClienteId = nuevoId, origen = "cliente" });
                 //return RedirectToAction("Index");
             }
             return View(cliente);
@@ -81,5 +80,16 @@ namespace TallerMecanico.Controllers
             repo.Eliminar(id);
             return RedirectToAction("Index");
         }
+
+
+
+
+
+
+
     }
+
+
+
+
 }

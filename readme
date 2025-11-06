@@ -1,0 +1,90 @@
+# 🧰 Sistema de Administración Automotriz
+
+**Autor:** Leandro Celi  
+**Carrera:** Tecnicatura Universitaria en Desarrollo de Software  
+**Materia:** Laboratorio de Programación II  
+**Año:** 2025  
+
+---
+
+## 📖 Descripción
+
+Este proyecto surge a partir de un problema real identificado en un mecánico conocido, quien presentaba dificultades para recordar y registrar los trabajos realizados a cada cliente.  
+El sistema busca brindar una **solución práctica** para la **gestión de clientes, vehículos, servicios y trabajos realizados**, optimizando la organización del taller.
+
+---
+
+## 🎯 Objetivos del Proyecto
+
+- Facilitar el registro de clientes y vehículos.  
+- Controlar los servicios realizados y su historial.  
+- Mejorar la administración del taller.  
+- Permitir un acceso seguro con roles diferenciados (Administrador, Mecánico, Recepcionista).  
+- Generar reportes de trabajos y servicios.
+
+---
+
+## 🧩 Tecnologías Utilizadas
+
+- **ASP.NET Core MVC** (C#)  
+- **MySQL** (gestión de base de datos)  
+- **Bootstrap 5** (interfaz responsive)  
+- **Vue.js** (interactividad en formularios dinámicos)  
+- **Entity Framework / Repositorios** (acceso a datos)  
+
+---
+
+## 🗄️ Estructura del Proyecto
+
+- `Models/` → Entidades principales (Cliente, Vehículo, Servicio, Usuario, Trabajo)  
+- `Controllers/` → Controladores MVC  
+- `Views/` → Vistas organizadas por módulo  
+- `Repositories/` → Lógica de acceso a base de datos  
+- `wwwroot/` → Archivos estáticos (CSS, JS, imágenes)  
+
+---
+
+## 🔐 Roles y Permisos
+
+| Rol | Permisos |
+|-----|-----------|
+| **Administrador** | Acceso total a todas las secciones |
+| **Recepcionista** | Gestión de clientes, vehículos y servicios |
+| **Mecánico** | Visualización de trabajos asignados y reportes |
+
+---
+
+## 🧠 Funcionalidades Principales
+
+- Registro, edición y eliminación de clientes.  
+- Asociación de múltiples vehículos por cliente.  
+- Control de patentes únicas.  
+- Gestión de servicios y trabajos.  
+- Control de acceso con login y roles.  
+- Reportes de trabajos realizados.  
+- Carga y visualización de avatar en usuarios.  
+
+---
+
+## 💽 Base de Datos
+
+Incluye las tablas:
+- `Cliente`
+- `Vehiculo`
+- `Servicio`
+- `Trabajo`
+- `Usuario`
+- `Rol`
+
+Ejemplos cargados para pruebas (40 clientes con vehículos asociados).
+
+---
+
+## 🚀 Ejecución del Proyecto
+
+1. Clonar el repositorio o copiar el proyecto.  
+2. Crear la base de datos en MySQL con el script incluido.  
+3. Configurar el **connection string** en `appsettings.json`.  
+4. Ejecutar desde Visual Studio o con el comando:  
+   ```bash
+   dotnet run

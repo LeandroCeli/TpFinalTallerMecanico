@@ -11,7 +11,7 @@ namespace TallerMecanico.Models
 
         public DateTime? FechaFin { get; set; }
         public decimal CostoTotal { get; set; }
-        public string Estado { get; set; } // Ej: "En Proceso", "Finalizado", "Entregado"
+        public string Estado { get; set; } 
         public int KilometrajeSalida { get; set; }
 
         // Relación con servicios realizados

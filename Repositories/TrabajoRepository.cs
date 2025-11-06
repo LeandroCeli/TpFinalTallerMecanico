@@ -21,9 +21,9 @@ namespace TallerMecanico.Repositories
             {
                 conn.Open();
                 var sql = @"SELECT t.*, v.Patente, v.Marca, v.Modelo
-                            FROM trabajos t
-                            INNER JOIN vehiculos v ON v.id_vehiculo = t.id_vehiculo
-                            ORDER BY t.fecha_inicio DESC";
+                            FROM trabajo t
+                            INNER JOIN vehiculo v ON v.id = t.VehiculoId
+                            ORDER BY t.FechaEntrega DESC";
 
                 using (var cmd = new MySqlCommand(sql, conn))
                 using (var reader = cmd.ExecuteReader())
@@ -32,16 +32,15 @@ namespace TallerMecanico.Repositories
                     {
                         lista.Add(new Trabajo
                         {
-                            Id = reader.GetInt32("id_trabajo"),
-                            IdVehiculo = reader.GetInt32("id_vehiculo"),
+                            Id = reader.GetInt32("id"),
+                            IdVehiculo = reader.GetInt32("VehiculoId"),
                             Observaciones = reader.GetString("Observaciones"),
 
-                            FechaFin = reader.IsDBNull(reader.GetOrdinal("fecha_fin")) ? null : reader.GetDateTime("fecha_fin"),
-                            CostoTotal = reader.GetDecimal("costo_total"),
-                            Estado = reader.GetString("estado"),
+                            FechaFin = reader.IsDBNull(reader.GetOrdinal("FechaEntrega")) ? null : reader.GetDateTime("FechaEntrega"),
+                            Estado = reader.GetString("Estado"),
                             Vehiculo = new Vehiculo
                             {
-                                Id = reader.GetInt32("id_vehiculo"),
+                                Id = reader.GetInt32("id"),
                                 Patente = reader.GetString("Patente"),
                                 Marca = reader.GetString("Marca"),
                                 Modelo = reader.GetString("Modelo")
@@ -60,7 +59,7 @@ namespace TallerMecanico.Repositories
             using (var conn = new MySqlConnection(connectionString))
             {
                 conn.Open();
-                var sql = "SELECT * FROM trabajos WHERE id_trabajo=@id";
+                var sql = "SELECT * FROM trabajos WHERE id=@id";
                 using (var cmd = new MySqlCommand(sql, conn))
                 {
                     cmd.Parameters.AddWithValue("@id", id);
@@ -74,7 +73,7 @@ namespace TallerMecanico.Repositories
                                 IdVehiculo = reader.GetInt32("id_vehiculo"),
                                 Observaciones = reader.GetString("Observaciones"),
 
-                                FechaFin = reader.IsDBNull(reader.GetOrdinal("fecha_fin")) ? null : reader.GetDateTime("fecha_fin"),
+                                FechaFin = reader.IsDBNull(reader.GetOrdinal("FechaEntrega")) ? null : reader.GetDateTime("fecha_fin"),
                                 CostoTotal = reader.GetDecimal("costo_total"),
                                 Estado = reader.GetString("estado")
                             };
@@ -144,7 +143,7 @@ namespace TallerMecanico.Repositories
                 var sql = @"UPDATE trabajos SET
                             id_vehiculo=@vehiculo,
                             descripcion=@desc,
-                            fecha_fin=@fin,
+                            fecha_fin=@FechaEntrega,
                             costo_total=@costo,
                             estado=@estado
                             WHERE id_trabajo=@id";
@@ -152,7 +151,7 @@ namespace TallerMecanico.Repositories
                 {
                     cmd.Parameters.AddWithValue("@vehiculo", trabajo.IdVehiculo);
                     cmd.Parameters.AddWithValue("@desc", trabajo.Observaciones);
-                    cmd.Parameters.AddWithValue("@fin", (object?)trabajo.FechaFin ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@FechaEntrega", (object?)trabajo.FechaFin ?? DBNull.Value);
                     cmd.Parameters.AddWithValue("@costo", trabajo.CostoTotal);
                     cmd.Parameters.AddWithValue("@estado", trabajo.Estado);
                     cmd.Parameters.AddWithValue("@id", trabajo.Id);

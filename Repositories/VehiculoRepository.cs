@@ -94,6 +94,7 @@ namespace TallerMecanico.Repositories
                     Modelo = reader["Modelo"].ToString(),
                     Anio = Convert.ToInt32(reader["Anio"]),
                     Color = reader["Color"].ToString(),
+                    Kilometraje = Convert.ToInt32(reader["Kilometraje"]),
                     Cliente = new Cliente
                     {
                         Nombre = reader["Nombre"].ToString(),

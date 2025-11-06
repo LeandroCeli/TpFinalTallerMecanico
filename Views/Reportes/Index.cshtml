@@ -1,0 +1,64 @@
+@{
+    ViewData["Title"] = "Reportes del Taller";
+    var trabajos = ViewBag.UltimosTrabajos as List<TallerMecanico.Models.Trabajo>;
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4">📊 Reporte General del Taller</h2>
+
+    <div class="row text-center mb-4">
+        <div class="col-md-4">
+            <div class="card shadow p-3">
+                <h5>Total de Clientes</h5>
+                <h2 class="text-primary">@ViewBag.TotalClientes</h2>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow p-3">
+                <h5>Total de Vehículos</h5>
+                <h2 class="text-success">@ViewBag.TotalVehiculos</h2>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow p-3">
+                <h5>Total de Trabajos</h5>
+                <h2 class="text-danger">@ViewBag.TotalTrabajos</h2>
+            </div>
+        </div>
+    </div>
+
+    <h4 class="mb-3">🧾 Últimos Trabajos Realizados</h4>
+
+    @if (trabajos == null || !trabajos.Any())
+    {
+        <div class="alert alert-warning">No hay trabajos registrados.</div>
+    }
+    else
+    {
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>Vehículo</th>
+                    <th>Patente</th>
+                    <th>Fecha</th>
+                    <th>Estado</th>
+                    <th>Observaciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var t in trabajos)
+                {
+                    <tr>
+                        <td>@t.Vehiculo?.Marca @t.Vehiculo?.Modelo</td>
+                        <td>@t.Vehiculo?.Patente</td>
+                        <td>@t.FechaFin?.ToString("dd/MM/yyyy")</td>
+                        <td>@t.Estado</td>
+                        <td>@t.Observaciones</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>

@@ -39,7 +39,7 @@ namespace TallerMecanico.Repositories
             Rol? rol = null;
             using var connection = new MySqlConnection(connectionString);
             connection.Open();
-            var query = "SELECT Id, Nombre, Descripcion FROM Roles WHERE Id=@id";
+            var query = "SELECT Id, Nombre, Descripcion FROM Rol WHERE Id=@id";
             using var command = new MySqlCommand(query, connection);
             command.Parameters.AddWithValue("@id", id);
             using var reader = command.ExecuteReader();

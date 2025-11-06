@@ -5,6 +5,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
+using BCrypt.Net;
 
 namespace TallerMecanico.Controllers
 {
@@ -44,42 +45,52 @@ namespace TallerMecanico.Controllers
         [HttpPost]
         public IActionResult Crear(Usuario u, IFormFile? avatar)
         {
-            // Validación de archivo
-            if (avatar != null && avatar.Length > 0)
-            {
-                if (!avatar.ContentType.StartsWith("image/"))
-                {
-                    ModelState.AddModelError("", "Solo se permiten archivos de imagen (jpg, png, etc.).");
-                }
-                else if (avatar.Length > MaxAvatarSize)
-                {
-                    ModelState.AddModelError("", "El archivo es demasiado grande. Tamaño máximo: 5 MB.");
-                }
-                else
-                {
-                    // Carpeta de destino
-                    string ruta = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "avatars");
-                    Directory.CreateDirectory(ruta);
+            // 🔹 Validación de archivo
+    if (avatar != null && avatar.Length > 0)
+    {
+        if (!avatar.ContentType.StartsWith("image/"))
+        {
+            ModelState.AddModelError("", "Solo se permiten archivos de imagen (jpg, png, etc.).");
+        }
+        else if (avatar.Length > MaxAvatarSize)
+        {
+            ModelState.AddModelError("", "El archivo es demasiado grande. Tamaño máximo: 5 MB.");
+        }
+        else
+        {
+            // Carpeta de destino
+            string ruta = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "avatars");
+            Directory.CreateDirectory(ruta);
 
-                    // Nombre único
-                    string nombreArchivo = Guid.NewGuid() + Path.GetExtension(avatar.FileName);
-                    string filePath = Path.Combine(ruta, nombreArchivo);
+            // Nombre único
+            string nombreArchivo = Guid.NewGuid() + Path.GetExtension(avatar.FileName);
+            string filePath = Path.Combine(ruta, nombreArchivo);
 
-                    using var stream = new FileStream(filePath, FileMode.Create);
-                    avatar.CopyTo(stream);
+            using var stream = new FileStream(filePath, FileMode.Create);
+            avatar.CopyTo(stream);
 
-                    u.Avatar = "/avatars/" + nombreArchivo;
-                }
-            }
+            u.Avatar = "/avatars/" + nombreArchivo;
+        }
+    }
 
-            if (ModelState.IsValid)
-            {
-                repoUsuario.Crear(u);
-                return RedirectToAction("Index");
-            }
+    // 🔹 Generar hash de contraseña ANTES de guardar
+    if (!string.IsNullOrEmpty(u.Password))
+    {
+        u.Password = BCrypt.Net.BCrypt.HashPassword(u.Password);
+    }
+    else
+    {
+        ModelState.AddModelError("PasswordHash", "Debe ingresar una contraseña.");
+    }
 
-            ViewBag.Roles = repoRol.ObtenerTodos();
-            return View(u);
+    if (ModelState.IsValid)
+    {
+        repoUsuario.Crear(u);
+        return RedirectToAction("Index");
+    }
+
+    ViewBag.Roles = repoRol.ObtenerTodos();
+    return View(u);
         }
 
         // ───────────────────────────────────────────────
@@ -168,9 +179,9 @@ namespace TallerMecanico.Controllers
         }
 
         // ───────────────────────────────────────────────
-        // DETAILS
+        // Detalle
         // ───────────────────────────────────────────────
-        public IActionResult Details(int id)
+        public IActionResult Detalle(int id)
         {
             var usuario = repoUsuario.ObtenerPorId(id);
             if (usuario == null) return NotFound();

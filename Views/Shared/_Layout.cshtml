@@ -4,6 +4,8 @@
     var user = HttpContextAccessor.HttpContext?.User;
     var isAuthenticated = user?.Identity?.IsAuthenticated ?? false;
     var nombre = user?.FindFirst("NombreCompleto")?.Value ?? "Invitado";
+
+    
 }
 
 <!DOCTYPE html>
@@ -30,9 +32,6 @@
                         @if (isAuthenticated)
                         {
                             <li class="nav-item">
-                                <a class="nav-link" asp-controller="Usuarios" asp-action="Perfil">Mi perfil</a>
-                            </li>
-                            <li class="nav-item">
                                 <a class="nav-link" asp-controller="Usuarios" asp-action="Index">Usuarios</a>
                             </li>
                             <li class="nav-item">
@@ -47,8 +46,8 @@
                             <li class="nav-item">
                                 <a class="nav-link" asp-controller="Trabajo" asp-action="TrabajoVue">Trabajo</a>
                             </li>
-                            <li class="nav-item">
-                                <a class="nav-link disabled">Reportes</a>
+                            <li class="nav-item" >
+                                <a class="nav-link" asp-controller="Reportes" asp-action="Index">Reportes</a>
                             </li>
                         }
                     </ul>

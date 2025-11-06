@@ -68,9 +68,12 @@
                                 </li>
 
                                 <li>
-                                    <a class="dropdown-item text-danger" asp-action="Eliminar" asp-route-id="@item.Id">
-                                        <i class="bi bi-trash"></i> Eliminar
-                                    </a>
+                                    @if (User.IsInRole("Admin"))
+                                    {
+                                        <a class="dropdown-item text-danger" asp-action="Eliminar" asp-route-id="@item.Id">
+                                            <i class="bi bi-trash"></i> Eliminar
+                                        </a>
+                                    }
                                 </li>
                             </ul>
                         </div>

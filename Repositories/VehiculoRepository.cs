@@ -44,7 +44,7 @@ namespace TallerMecanico.Repositories
             }
             return lista;
         }
-
+/*
         public Vehiculo? ObtenerPorId(int id)
         {
             Vehiculo? v = null;
@@ -69,7 +69,7 @@ namespace TallerMecanico.Repositories
             }
             return v;
         }
-
+*/
         // 🔹 NUEVO MÉTODO: Obtener vehículos por idCliente
         public List<Vehiculo> ObtenerPorCliente(int idCliente)
         {
@@ -104,6 +104,50 @@ namespace TallerMecanico.Repositories
             }
             return lista;
         }
+
+
+        public Vehiculo ObtenerPorId(int id)
+        {
+            Vehiculo? vehiculo = null;
+            using var connection = new MySqlConnection(connectionString);
+            connection.Open();
+
+            var sql = @"SELECT v.*, c.Id AS ClienteId, c.Nombre, c.Apellido, c.Dni, c.Telefono
+                FROM Vehiculo v
+                INNER JOIN Cliente c ON v.ClienteId = c.Id
+                WHERE v.Id = @id";
+
+            using var command = new MySqlCommand(sql, connection);
+            command.Parameters.AddWithValue("@id", id);
+
+            using var reader = command.ExecuteReader();
+            if (reader.Read())
+            {
+                vehiculo = new Vehiculo
+                {
+                    Id = Convert.ToInt32(reader["Id"]),
+                    ClienteId = Convert.ToInt32(reader["ClienteId"]),
+                    Patente = reader["Patente"].ToString(),
+                    Marca = reader["Marca"].ToString(),
+                    Modelo = reader["Modelo"].ToString(),
+                    Anio = Convert.ToInt32(reader["Anio"]),
+                    Color = reader["Color"].ToString(),
+                    Kilometraje = Convert.ToInt32(reader["Kilometraje"]),
+                    Tipo = reader["Tipo"].ToString(),
+                    Cliente = new Cliente
+                    {
+                        Id = Convert.ToInt32(reader["ClienteId"]),
+                        Nombre = reader["Nombre"].ToString(),
+                        Apellido = reader["Apellido"].ToString(),
+                        Dni = reader["Dni"].ToString(),
+                        Telefono = reader["Telefono"].ToString()
+                    }
+                };
+            }
+
+            return vehiculo;
+        }
+
 
         public void Crear(Vehiculo v)
         {

@@ -46,51 +46,51 @@ namespace TallerMecanico.Controllers
         public IActionResult Crear(Usuario u, IFormFile? avatar)
         {
             // 🔹 Validación de archivo
-    if (avatar != null && avatar.Length > 0)
-    {
-        if (!avatar.ContentType.StartsWith("image/"))
-        {
-            ModelState.AddModelError("", "Solo se permiten archivos de imagen (jpg, png, etc.).");
-        }
-        else if (avatar.Length > MaxAvatarSize)
-        {
-            ModelState.AddModelError("", "El archivo es demasiado grande. Tamaño máximo: 5 MB.");
-        }
-        else
-        {
-            // Carpeta de destino
-            string ruta = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "avatars");
-            Directory.CreateDirectory(ruta);
+            if (avatar != null && avatar.Length > 0)
+            {
+                if (!avatar.ContentType.StartsWith("image/"))
+                {
+                    ModelState.AddModelError("", "Solo se permiten archivos de imagen (jpg, png, etc.).");
+                }
+                else if (avatar.Length > MaxAvatarSize)
+                {
+                    ModelState.AddModelError("", "El archivo es demasiado grande. Tamaño máximo: 5 MB.");
+                }
+                else
+                {
+                    // Carpeta de destino
+                    string ruta = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "avatars");
+                    Directory.CreateDirectory(ruta);
 
-            // Nombre único
-            string nombreArchivo = Guid.NewGuid() + Path.GetExtension(avatar.FileName);
-            string filePath = Path.Combine(ruta, nombreArchivo);
+                    // Nombre único
+                    string nombreArchivo = Guid.NewGuid() + Path.GetExtension(avatar.FileName);
+                    string filePath = Path.Combine(ruta, nombreArchivo);
 
-            using var stream = new FileStream(filePath, FileMode.Create);
-            avatar.CopyTo(stream);
+                    using var stream = new FileStream(filePath, FileMode.Create);
+                    avatar.CopyTo(stream);
 
-            u.Avatar = "/avatars/" + nombreArchivo;
-        }
-    }
+                    u.Avatar = "/avatars/" + nombreArchivo;
+                }
+            }
 
-    // 🔹 Generar hash de contraseña ANTES de guardar
-    if (!string.IsNullOrEmpty(u.Password))
-    {
-        u.Password = BCrypt.Net.BCrypt.HashPassword(u.Password);
-    }
-    else
-    {
-        ModelState.AddModelError("PasswordHash", "Debe ingresar una contraseña.");
-    }
+            // 🔹 Generar hash de contraseña ANTES de guardar
+            if (!string.IsNullOrEmpty(u.Password))
+            {
+                u.Password = BCrypt.Net.BCrypt.HashPassword(u.Password);
+            }
+            else
+            {
+                ModelState.AddModelError("PasswordHash", "Debe ingresar una contraseña.");
+            }
 
-    if (ModelState.IsValid)
-    {
-        repoUsuario.Crear(u);
-        return RedirectToAction("Index");
-    }
+            if (ModelState.IsValid)
+            {
+                repoUsuario.Crear(u);
+                return RedirectToAction("Index");
+            }
 
-    ViewBag.Roles = repoRol.ObtenerTodos();
-    return View(u);
+            ViewBag.Roles = repoRol.ObtenerTodos();
+            return View(u);
         }
 
         // ───────────────────────────────────────────────
@@ -204,11 +204,13 @@ namespace TallerMecanico.Controllers
             }
 
             var claims = new List<Claim>
-{
-    new Claim(ClaimTypes.Name, usuario.Email ?? ""),
-    new Claim("NombreCompleto", $"{usuario.Nombre} {usuario.Apellido}".Trim()),
-    new Claim(ClaimTypes.Role, usuario.Rol?.ToString() ?? "Usuario") // Valor por defecto si Rol es null
-};
+                {
+                    new Claim(ClaimTypes.Name, usuario.Email ?? ""),
+                    new Claim("NombreCompleto", $"{usuario.Nombre} {usuario.Apellido}".Trim()),
+                    new Claim(ClaimTypes.Role, usuario.Rol?.ToString() ?? "Usuario"), // Valor por defecto si Rol es null
+                    new Claim(ClaimTypes.Role, usuario.Rol?.Nombre ?? "Usuario")
+
+                };
 
             var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
             var principal = new ClaimsPrincipal(identity);

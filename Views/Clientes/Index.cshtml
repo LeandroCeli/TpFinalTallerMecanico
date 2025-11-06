@@ -8,9 +8,8 @@
     <h2 class="mb-4">Listado de Clientes</h2>
 
     <form asp-action="Index" method="get" class="d-flex mb-3">
-        <input type="text" name="busqueda" class="form-control me-2"
-               placeholder="Buscar por DNI, nombre o apellido"
-               value="@ViewBag.Busqueda" />
+        <input type="text" name="busqueda" class="form-control me-2" placeholder="Buscar por DNI, nombre o apellido"
+            value="@ViewBag.Busqueda" />
         <button type="submit" class="btn btn-primary">
             <i class="bi bi-search"></i> Buscar
         </button>
@@ -47,15 +46,14 @@
                     <td>@item.Direccion</td>
                     <td class="text-center">
                         <div class="dropdown">
-                            <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            <button class="btn btn-secondary btn-sm dropdown-toggle" type="button"
+                                data-bs-toggle="dropdown">
                                 <i class="bi bi-gear"></i> Opciones
                             </button>
                             <ul class="dropdown-menu">
                                 <li>
-                                    <a class="dropdown-item"
-                                       asp-controller="Vehiculos"
-                                       asp-action="PorCliente"
-                                       asp-route-idCliente="@item.Id">
+                                    <a class="dropdown-item" asp-controller="Vehiculos" asp-action="PorCliente"
+                                        asp-route-idCliente="@item.Id">
                                         🚗 Ver Vehículos
                                     </a>
                                 </li>
@@ -65,9 +63,12 @@
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="dropdown-item text-danger" asp-action="Eliminar" asp-route-id="@item.Id">
-                                        🗑️ Eliminar
-                                    </a>
+                                    @if (User.IsInRole("Admin"))
+                                    {
+                                        <a class="dropdown-item text-danger" asp-action="Eliminar" asp-route-id="@item.Id">
+                                            🗑️ Eliminar
+                                        </a>
+                                    }
                                 </li>
                             </ul>
                         </div>
@@ -85,10 +86,8 @@
 
                 <!-- Anterior -->
                 <li class="page-item @(ViewBag.PaginaActual == 1 ? "disabled" : "")">
-                    <a class="page-link"
-                       asp-action="Index"
-                       asp-route-page="@(ViewBag.PaginaActual - 1)"
-                       asp-route-busqueda="@ViewBag.Busqueda">
+                    <a class="page-link" asp-action="Index" asp-route-page="@(ViewBag.PaginaActual - 1)"
+                        asp-route-busqueda="@ViewBag.Busqueda">
                         « Anterior
                     </a>
                 </li>
@@ -97,10 +96,7 @@
                 @for (int i = 1; i <= ViewBag.TotalPaginas; i++)
                 {
                     <li class="page-item @(i == ViewBag.PaginaActual ? "active" : "")">
-                        <a class="page-link"
-                           asp-action="Index"
-                           asp-route-page="@i"
-                           asp-route-busqueda="@ViewBag.Busqueda">
+                        <a class="page-link" asp-action="Index" asp-route-page="@i" asp-route-busqueda="@ViewBag.Busqueda">
                             @i
                         </a>
                     </li>
@@ -108,10 +104,8 @@
 
                 <!-- Siguiente -->
                 <li class="page-item @(ViewBag.PaginaActual == ViewBag.TotalPaginas ? "disabled" : "")">
-                    <a class="page-link"
-                       asp-action="Index"
-                       asp-route-page="@(ViewBag.PaginaActual + 1)"
-                       asp-route-busqueda="@ViewBag.Busqueda">
+                    <a class="page-link" asp-action="Index" asp-route-page="@(ViewBag.PaginaActual + 1)"
+                        asp-route-busqueda="@ViewBag.Busqueda">
                         Siguiente »
                     </a>
                 </li>
